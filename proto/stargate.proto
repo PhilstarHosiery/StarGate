@@ -1,6 +1,8 @@
 syntax = "proto3";
 package philstar.stargate;
 
+option go_package = "github.com/PhilstarHosiery/stargate/backend/gen;stargate";
+
 service StarGateCore {
   // Authentication
   rpc Login(LoginRequest) returns (LoginResponse);

@@ -1,0 +1,10 @@
+server:
+  grpc_addr: ":50051"
+  webhook_addr: ":8080"
+
+database:
+  path: "stargate.db"
+
+sms:
+  gate_url: "http://192.168.1.1"  # SMS Gate app / RUT241 API base URL
+  api_key: "your-api-key-here"

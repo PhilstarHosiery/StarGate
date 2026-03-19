@@ -42,14 +42,11 @@ Output: `client/build/image/` (runtime image), `client/build/jpackage/` (install
 
 ### Backend (Go)
 
-```bash
+```bat
 cd backend
 
-# Run
-go run ./cmd/server
-
-# Build
-go build -o stargate-server ./cmd/server
+run.bat          :: go run ./cmd/server
+build.bat        :: produces stargate-server.exe
 ```
 
 ### Generating gRPC Code
@@ -61,10 +58,16 @@ Proto changes must be re-compiled for both languages.
 cd client && ./gradlew generateProto
 ```
 
-**Go:**
-```bash
-cd proto
-protoc --go_out=../backend --go-grpc_out=../backend stargate.proto
+**Go** — run once after any proto change:
+```bat
+cd backend
+gen.bat
+```
+Requires `protoc`, `protoc-gen-go`, and `protoc-gen-go-grpc` on `PATH`.
+Install the Go plugins with:
+```bat
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 ```
 
 ## Configuration
