@@ -1,6 +1,6 @@
 # StarGate
 
-Centralized, real-time SMS Gateway for Philstar. Remote employees text a central number; messages are routed to the appropriate Supervisors, Managers, or HR via a JavaFX desktop client. Features RBAC, Dual-SIM routing (Globe/Smart), and real-time UI updates via gRPC streaming.
+Centralized, real-time SMS Gateway for Philstar. Remote contacts text a central number; messages are routed to the appropriate Supervisors, Managers, or HR via a JavaFX desktop client. Features RBAC, Dual-SIM routing (Globe/Smart), and real-time UI updates via gRPC streaming.
 
 ## Tech Stack
 
@@ -13,71 +13,46 @@ Centralized, real-time SMS Gateway for Philstar. Remote employees text a central
 | Frontend | Java 25 + JavaFX desktop client |
 | Transport | gRPC — server-side streaming for real-time updates |
 
+## Core Concepts
+
+**User** — A person operating the system via the JavaFX client. Has a username, password, and an internal user ID. Access is granted per Group.
+
+**Contact** — Anyone who texts the system (employee, supplier, marketing, unknown). Identified by phone number. A name can be assigned later. Belongs to at most one Group. Has a preferred SIM (Globe or Smart) used for all replies.
+
+**Group** — A category that Contacts belong to (e.g. "Welding", "Logistics"). Users are granted access to one or more Groups; they only see messages from Contacts in those Groups.
+
+**Session** — A collection of Messages belonging to a Contact. Represents the ongoing conversation thread with that Contact.
+
+**Message** — A single text message sent or received between a User and a Contact. Belongs to a Session.
+
 ## Database Schema
 
-Flat ACL model (no rigid role hierarchy).
-
-- **Users** — JavaFX operators. `(user_id, name, has_global_access)` — `has_global_access = true` for HR.
-- **Sections** — Company departments. `(section_id, section_name)` e.g. "Welding".
-- **User_Sections** — Maps users to sections. Supervisors: 1 section; Managers: many; HR: ignored.
-- **Employees** — Workers texting the system. `(phone_number PK, name, section_id nullable)`.
-- **Sessions** — Conversation threads. `(session_id, employee_phone, assigned_sim, status OPEN|CLOSED)`.
-- **Messages** — `(message_id, session_id, direction INBOUND|OUTBOUND, text, sent_by_user_id, timestamp)`.
+- **Users** — `(user_id, username, password_hash, has_global_access)` — `has_global_access = true` grants access to all groups (HR use case).
+- **Groups** — `(group_id, group_name)`.
+- **User_Groups** — Access control mapping. `(user_id, group_id)`.
+- **Contacts** — `(phone_number PK, name nullable, group_id nullable, assigned_sim nullable)`.
+- **Sessions** — Conversation threads. `(session_id, contact_phone, status OPEN|CLOSED)`.
+- **Messages** — `(message_id, session_id, direction INBOUND|OUTBOUND, text, sent_by_user_id nullable, timestamp)`.
 
 ## Core Workflows
 
 ### Inbound Routing
 1. SMS Gate / RUT241 POSTs a webhook to the Go backend.
-2. Go looks up the sender in `Employees`.
-   - **Found** → route to that employee's section.
-   - **Not found** → create an "Unknown" employee with `section_id = NULL`; push only to HR (`has_global_access = true`).
-3. Go pushes the message via gRPC stream to all connected clients with permission for that section.
-4. HR assigns an Unknown number a name and section → Go updates the DB and re-routes the session.
+2. Go looks up the sender in `Contacts`.
+   - **Found** → route to that contact's group.
+   - **Not found** → create an "Unknown" contact with `group_id = NULL`; push only to HR (`has_global_access = true`).
+3. Go pushes the message via gRPC stream to all connected clients with permission for that group.
+4. HR calls `RenameContact` and `AssignContact` → Go updates the DB and pushes a `MessageEvent` to all users with permission to the newly assigned group.
 
 ### Outbound (Sticky SIM)
-- Inbound messages record which SIM received them (`assigned_sim`: 1 = Globe, 2 = Smart).
-- Replies are sent via `SendReply` gRPC call → Go POSTs to the SMS Gate / RUT241 API with the same `simNumber`, avoiding cross-network fees.
+- Each Contact has an `assigned_sim` (1 = Globe, 2 = Smart) set at creation time from whichever SIM received the first inbound message.
+- Replies are sent via `SendReply` gRPC call → Go POSTs to the SMS Gate / RUT241 API with the Contact's `assigned_sim`, avoiding cross-network fees.
 
 ### Real-Time Communication
 - JavaFX connects on login via a persistent gRPC `StreamObserver`.
-- Go pushes `ChatEvent` payloads immediately on webhook receipt.
+- Go pushes `MessageEvent` payloads immediately on webhook receipt.
 - JavaFX applies updates with `Platform.runLater()`.
 
-## gRPC Contract (`proto/stargate.proto`)
+## gRPC Contract
 
-```proto
-syntax = "proto3";
-package stargate;
-
-service StarGateCore {
-  rpc SubscribeToInbox(UserContext)    returns (stream ChatEvent);
-  rpc SendReply(ReplyRequest)          returns (ActionResponse);
-  rpc AssignEmployee(AssignRequest)    returns (ActionResponse);
-}
-
-message UserContext   { string user_id = 1; }
-message ActionResponse { bool success = 1; string error_message = 2; }
-
-message ChatEvent {
-  string session_id    = 1;
-  string phone_number  = 2;
-  string employee_name = 3;
-  string message_text  = 4;
-  string section_id    = 5;
-  int32  active_sim    = 6;  // 1 = Globe, 2 = Smart
-  string sender_type   = 7;  // "Employee" | "HR" | etc.
-}
-
-message AssignRequest {
-  string phone_number       = 1;
-  string employee_name      = 2;
-  string section_id         = 3;
-  string assigned_by_user_id = 4;
-}
-
-message ReplyRequest {
-  string session_id   = 1;
-  string message_text = 2;
-  string user_id      = 3;
-}
-```
+See `proto/stargate.proto`.

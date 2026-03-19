@@ -2,45 +2,128 @@ syntax = "proto3";
 package philstar.stargate;
 
 service StarGateCore {
-  rpc SubscribeToInbox(UserContext)    returns (stream ChatEvent);
-  rpc SendReply(ReplyRequest)          returns (ActionResponse);
-  rpc AssignEmployee(AssignRequest)    returns (ActionResponse);
+  // Authentication
+  rpc Login(LoginRequest) returns (LoginResponse);
+
+  // Real-time stream — Go pushes events to the client as messages arrive
+  rpc SubscribeToInbox(User) returns (stream MessageEvent);
+
+  // Fetch all sessions the user has permission to see — called on login
+  rpc GetSessions(User) returns (SessionsResponse);
+
+  // Fetch a session by ID — called when client receives an unknown session_id
+  rpc GetSession(SessionRequest) returns (ChatSession);
+
+  // Fetch all messages for a session — called on initial session load
+  rpc GetMessages(SessionRequest) returns (MessagesResponse);
+
+  // Send a reply within a session
+  rpc SendReply(ReplyRequest) returns (ActionResponse);
+
+  // Set or update a contact's name
+  rpc RenameContact(RenameRequest) returns (ActionResponse);
+
+  // Set or update a contact's group association
+  rpc AssignContact(AssignRequest) returns (ActionResponse);
 }
 
-message UserContext   { string user_id = 1; }
-message ActionResponse { bool success = 1; string error_message = 2; }
+// -----------------------------------------------------------------------------
+// Auth
+// -----------------------------------------------------------------------------
 
-message Department {
-  string id = 1;
-  string name = 1;
+message LoginRequest {
+  string username = 1;
+  string password = 2;
 }
+
+message LoginResponse {
+  bool   success       = 1;
+  string user_id       = 2;
+  string error_message = 3;
+}
+
+// -----------------------------------------------------------------------------
+// Core entities
+// -----------------------------------------------------------------------------
+
+message User {
+  string user_id  = 1;
+  string username = 2;
+}
+
+message Contact {
+  string contact_phone = 1;
+  string name         = 2;  // nullable — assigned later
+  string group_id     = 3;  // nullable — assigned later
+  int32  assigned_sim = 4;  // 1 = Globe, 2 = Smart; 0 = unset
+}
+
+message Group {
+  string id   = 1;
+  string name = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Streaming
+// -----------------------------------------------------------------------------
 
 message ChatSession {
-  string sesseion_id = 1;
-  string phone_number  = 2;
-  string section_id    = 5;
-  int32  active_sim    = 6;  // 1 = Globe, 2 = Smart
+  string session_id     = 1;
+  string contact_phone  = 2;
+  string group_id       = 3;
+  string status         = 4;  // "OPEN" | "CLOSED"
 }
 
-message ChatEvent {
-  string session_id    = 1;
-  string phone_number  = 2;
-  string employee_name = 3;
-  string message_text  = 4;
-  string section_id    = 5;
-  int32  active_sim    = 6;  // 1 = Globe, 2 = Smart
-  string sender_type   = 7;  // "Employee" | "HR" | etc.
+message Message {
+  string message_id      = 1;
+  string session_id      = 2;
+  string direction       = 3;  // "INBOUND" | "OUTBOUND"
+  string text            = 4;
+  string sent_by_user_id = 5;  // empty if inbound (sent by contact)
+  string timestamp       = 6;  // ISO 8601
 }
 
-message AssignRequest {
-  string phone_number       = 1;
-  string employee_name      = 2;
-  string section_id         = 3;
-  string assigned_by_user_id = 4;
+message MessageEvent {
+  string session_id   = 1;
+  string message_text = 2;
+  string sender_type  = 3;  // "Contact" | user_id of the replying user
+}
+
+// -----------------------------------------------------------------------------
+// Actions
+// -----------------------------------------------------------------------------
+
+message SessionsResponse {
+  repeated ChatSession sessions = 1;
+}
+
+message MessagesResponse {
+  repeated Message messages = 1;
+}
+
+message ActionResponse {
+  bool   success       = 1;
+  string error_message = 2;
+}
+
+message SessionRequest {
+  string session_id = 1;
 }
 
 message ReplyRequest {
   string session_id   = 1;
   string message_text = 2;
   string user_id      = 3;
+}
+
+message RenameRequest {
+  string contact_phone    = 1;
+  string name             = 2;
+  string user_id          = 3;
+}
+
+message AssignRequest {
+  string contact_phone = 1;
+  string group_id      = 2;
+  string user_id       = 3;
 }
