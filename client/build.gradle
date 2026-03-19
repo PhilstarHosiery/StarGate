@@ -1,0 +1,161 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.google.protobuf' version '0.9.4'
+    id 'org.beryx.jlink' version '3.0.1'
+}
+
+group = 'com.philstar'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+// ---------------------------------------------------------------------------
+// Versions
+// ---------------------------------------------------------------------------
+ext {
+    grpcVersion      = '1.69.1'
+    protobufVersion  = '3.25.8'
+    javafxVersion    = '21.0.2'
+}
+
+// ---------------------------------------------------------------------------
+// JavaFX modules
+// ---------------------------------------------------------------------------
+javafx {
+    version = javafxVersion
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+// ---------------------------------------------------------------------------
+// Dependencies
+// ---------------------------------------------------------------------------
+dependencies {
+    // gRPC
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+
+    // Protobuf runtime
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+
+    // Required by gRPC stubs on Java 9+
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+
+    // Logging
+    implementation 'org.slf4j:slf4j-api:2.0.13'
+    implementation 'ch.qos.logback:logback-classic:1.5.6'
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// ---------------------------------------------------------------------------
+// Protobuf code generation
+// ---------------------------------------------------------------------------
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+// Point protobuf plugin at the shared proto directory
+sourceSets {
+    main {
+        proto {
+            srcDir '../proto'
+        }
+        java {
+            // Include generated gRPC/protobuf sources
+            srcDirs += [
+                'build/generated/source/proto/main/grpc',
+                'build/generated/source/proto/main/java'
+            ]
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Application entry point
+// ---------------------------------------------------------------------------
+application {
+    // mainModule is required for jlink — must match module-info.java module name
+    mainModule = 'com.philstar.stargate'
+    mainClass  = 'com.philstar.stargate.Main'
+}
+
+// ---------------------------------------------------------------------------
+// Test
+// ---------------------------------------------------------------------------
+test {
+    useJUnitPlatform()
+}
+
+// ---------------------------------------------------------------------------
+// jlink — custom runtime image
+// jpackage — native installer (exe/msi)
+// ---------------------------------------------------------------------------
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+
+    launcher {
+        name    = 'stargate'
+        jvmArgs = ['-Dfile.encoding=UTF-8']
+    }
+
+    // gRPC, Netty, Protobuf, and Logback are not fully modular.
+    // The plugin bundles all non-modular jars into one synthetic merged module
+    // named 'com.philstar.stargate.merged.module' (referenced in module-info.java).
+    mergedModule {
+        additive = true
+        // Extra java.* modules that merged non-modular code needs at runtime
+        requires 'java.logging'
+        requires 'java.naming'
+        requires 'java.management'
+        requires 'java.security.sasl'
+        requires 'java.security.jgss'
+        requires 'jdk.unsupported'   // Unsafe — needed by Netty
+    }
+
+    jpackage {
+        imageName      = 'StarGate'
+        installerName  = 'StarGate-Setup'
+        // Strip -SNAPSHOT so jpackage accepts the version string
+        appVersion     = project.version.toString().replace('-SNAPSHOT', '')
+        vendor         = 'Philstar'
+
+        // 'exe' works out of the box.
+        // Switch to 'msi' if WiX Toolset 3.x is installed (adds Windows Installer support).
+        installerType  = 'exe'
+
+        installerOptions = [
+            '--win-per-user-install',
+            '--win-dir-chooser',
+            '--win-menu',
+            '--win-shortcut',
+        ]
+
+        // Uncomment once an icon exists:
+        // imageOptions = ['--icon', 'src/main/resources/images/icon.ico']
+    }
+}

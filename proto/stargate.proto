@@ -1,0 +1,46 @@
+syntax = "proto3";
+package philstar.stargate;
+
+service StarGateCore {
+  rpc SubscribeToInbox(UserContext)    returns (stream ChatEvent);
+  rpc SendReply(ReplyRequest)          returns (ActionResponse);
+  rpc AssignEmployee(AssignRequest)    returns (ActionResponse);
+}
+
+message UserContext   { string user_id = 1; }
+message ActionResponse { bool success = 1; string error_message = 2; }
+
+message Department {
+  string id = 1;
+  string name = 1;
+}
+
+message ChatSession {
+  string sesseion_id = 1;
+  string phone_number  = 2;
+  string section_id    = 5;
+  int32  active_sim    = 6;  // 1 = Globe, 2 = Smart
+}
+
+message ChatEvent {
+  string session_id    = 1;
+  string phone_number  = 2;
+  string employee_name = 3;
+  string message_text  = 4;
+  string section_id    = 5;
+  int32  active_sim    = 6;  // 1 = Globe, 2 = Smart
+  string sender_type   = 7;  // "Employee" | "HR" | etc.
+}
+
+message AssignRequest {
+  string phone_number       = 1;
+  string employee_name      = 2;
+  string section_id         = 3;
+  string assigned_by_user_id = 4;
+}
+
+message ReplyRequest {
+  string session_id   = 1;
+  string message_text = 2;
+  string user_id      = 3;
+}
