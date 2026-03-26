@@ -22,6 +22,7 @@ type Config struct {
 		Password      string `yaml:"password"`       // Local Mode basic auth password
 		APIKey        string `yaml:"api_key"`        // Cloud Mode bearer token (overrides basic auth)
 		WebhookSecret string `yaml:"webhook_secret"` // HMAC-SHA256 signing key for inbound webhooks
+		WebhookURL    string `yaml:"webhook_url"`    // Externally-accessible URL SMS Gate will POST to
 	} `yaml:"sms"`
 }
 

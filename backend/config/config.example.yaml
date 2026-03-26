@@ -6,5 +6,9 @@ database:
   path: "stargate.db"
 
 sms:
-  gate_url: "http://192.168.1.1"  # SMS Gate app / RUT241 API base URL
-  api_key: "your-api-key-here"
+  gate_url: "http://192.168.1.1"      # SMS Gate app / RUT241 API base URL
+  username: "your-username"            # Local Mode basic auth
+  password: "your-password"
+  api_key: ""                          # Cloud Mode bearer token (leave empty for Local Mode)
+  webhook_secret: "your-signing-key"   # HMAC-SHA256 signing key from SMS Gate settings
+  webhook_url: "https://your-server/webhook"  # Externally-accessible URL SMS Gate will POST to

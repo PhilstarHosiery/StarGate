@@ -52,7 +52,7 @@ func main() {
 	}
 
 	// Create application components.
-	smsOutbound := sms.NewOutboundClient(cfg.SMS.GateURL, cfg.SMS.APIKey)
+	smsOutbound := sms.NewOutboundClient(cfg.SMS.GateURL, cfg.SMS.Username, cfg.SMS.Password, cfg.SMS.APIKey)
 	streamMgr := grpcserver.NewStreamManager()
 	server := grpcserver.NewServer(database, streamMgr, smsOutbound)
 
@@ -61,7 +61,7 @@ func main() {
 	pb.RegisterStarGateCoreServer(grpcSrv, server)
 
 	// Start webhook HTTP server in background.
-	webhookHandler := sms.NewWebhookHandler(database, streamMgr)
+	webhookHandler := sms.NewWebhookHandler(database, streamMgr, cfg.SMS.WebhookSecret)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/webhook", webhookHandler)
 
@@ -72,6 +72,15 @@ func main() {
 			os.Exit(1)
 		}
 	}()
+
+	// Register this server's webhook URL with the SMS Gate app.
+	if cfg.SMS.WebhookURL != "" {
+		if err := smsOutbound.RegisterWebhook(cfg.SMS.WebhookURL); err != nil {
+			slog.Error("failed to register webhook with SMS Gate", "err", err)
+			os.Exit(1)
+		}
+		slog.Info("webhook registered with SMS Gate", "url", cfg.SMS.WebhookURL)
+	}
 
 	// Start gRPC server (blocking).
 	lis, err := net.Listen("tcp", cfg.Server.GRPCAddr)
