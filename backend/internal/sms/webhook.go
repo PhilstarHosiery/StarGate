@@ -174,8 +174,10 @@ func verifySignature(secret string, body []byte, headers http.Header) bool {
 		return false
 	}
 
+	// SMS Gate signs: HMAC-SHA256(secret, body + timestamp)
 	mac := hmac.New(sha256.New, []byte(secret))
 	mac.Write(body)
+	mac.Write([]byte(tsStr))
 	expected := hex.EncodeToString(mac.Sum(nil))
 	return hmac.Equal([]byte(expected), []byte(sig))
 }
