@@ -7,7 +7,10 @@ module com.philstar.stargate {
     requires org.slf4j;
 
     // gRPC, Netty, Protobuf, Logback — all non-modular, bundled by jlink plugin
-    requires com.philstar.stargate.merged.module;
+    // requires com.philstar.stargate.merged.module;
+    requires grpc.api;
+    requires grpc.stub;
+    requires protobuf.java;
 
     // FXML reflectively instantiates controllers
     opens com.philstar.stargate             to javafx.fxml;
