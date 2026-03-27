@@ -84,14 +84,15 @@ public class AppState {
     }
 
     /**
-     * Adds a session to the front of the list, or replaces it if already present.
-     * Used when a new unknown session arrives via the real-time stream.
+     * Moves a session to the front of the list (replacing it if already present),
+     * or inserts it at the front if new. Called on every incoming message event so
+     * the list stays sorted with the most recently active session at the top.
      */
     public void replaceOrAddSession(ChatSession newSession) {
         for (int i = 0; i < sessions.size(); i++) {
             if (sessions.get(i).getSessionId().equals(newSession.getSessionId())) {
-                sessions.set(i, newSession);
-                return;
+                sessions.remove(i);
+                break;
             }
         }
         sessions.add(0, newSession);

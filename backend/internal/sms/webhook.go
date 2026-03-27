@@ -29,10 +29,11 @@ type smsGateEvent struct {
 }
 
 type smsGatePayload struct {
-	MessageID string `json:"messageId"`
-	Sender    string `json:"sender"`
-	Message   string `json:"message"`
-	SimNumber int    `json:"simNumber"`
+	MessageID  string `json:"messageId"`
+	Sender     string `json:"sender"`
+	Message    string `json:"message"`
+	SimNumber  int    `json:"simNumber"`
+	ReceivedAt string `json:"receivedAt"`
 }
 
 // NewWebhookHandler returns an http.HandlerFunc that processes inbound SMS webhooks.
@@ -120,8 +121,14 @@ func NewWebhookHandler(database *db.DB, broadcaster Broadcaster, webhookSecret s
 			slog.Info("webhook: created new session", "session_id", sess.SessionID)
 		}
 
+		// Parse the authoritative receive time from SMS Gate; fall back to now if missing/malformed.
+		receivedAt, err := time.Parse(time.RFC3339Nano, event.Payload.ReceivedAt)
+		if err != nil {
+			receivedAt = time.Now().UTC()
+		}
+
 		// Store the inbound message; nil return means duplicate — already processed.
-		msg, err := database.CreateMessage(sess.SessionID, "INBOUND", message, "", event.Payload.MessageID)
+		msg, err := database.CreateMessage(sess.SessionID, "INBOUND", message, "", event.Payload.MessageID, receivedAt)
 		if err != nil {
 			slog.Error("webhook: CreateMessage failed", "err", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
@@ -147,6 +154,7 @@ func NewWebhookHandler(database *db.DB, broadcaster Broadcaster, webhookSecret s
 				SessionId:   sess.SessionID,
 				MessageText: message,
 				SenderType:  "Contact",
+				Timestamp:   msg.Timestamp.Format(time.RFC3339),
 			}, targetUsers)
 		}
 

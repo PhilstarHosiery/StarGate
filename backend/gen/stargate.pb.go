@@ -470,6 +470,7 @@ type MessageEvent struct {
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	MessageText   string                 `protobuf:"bytes,2,opt,name=message_text,json=messageText,proto3" json:"message_text,omitempty"`
 	SenderType    string                 `protobuf:"bytes,3,opt,name=sender_type,json=senderType,proto3" json:"sender_type,omitempty"` // "Contact" | user_id of the replying user
+	Timestamp     string                 `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`                     // ISO 8601
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -521,6 +522,13 @@ func (x *MessageEvent) GetMessageText() string {
 func (x *MessageEvent) GetSenderType() string {
 	if x != nil {
 		return x.SenderType
+	}
+	return ""
+}
+
+func (x *MessageEvent) GetTimestamp() string {
+	if x != nil {
+		return x.Timestamp
 	}
 	return ""
 }
@@ -1487,13 +1495,14 @@ const file_stargate_proto_rawDesc = "" +
 	"\tdirection\x18\x03 \x01(\tR\tdirection\x12\x12\n" +
 	"\x04text\x18\x04 \x01(\tR\x04text\x12%\n" +
 	"\x0fsent_by_user_id\x18\x05 \x01(\tR\fsentByUserId\x12\x1c\n" +
-	"\ttimestamp\x18\x06 \x01(\tR\ttimestamp\"q\n" +
+	"\ttimestamp\x18\x06 \x01(\tR\ttimestamp\"\x8f\x01\n" +
 	"\fMessageEvent\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12!\n" +
 	"\fmessage_text\x18\x02 \x01(\tR\vmessageText\x12\x1f\n" +
 	"\vsender_type\x18\x03 \x01(\tR\n" +
-	"senderType\"N\n" +
+	"senderType\x12\x1c\n" +
+	"\ttimestamp\x18\x04 \x01(\tR\ttimestamp\"N\n" +
 	"\x10SessionsResponse\x12:\n" +
 	"\bsessions\x18\x01 \x03(\v2\x1e.philstar.stargate.ChatSessionR\bsessions\"B\n" +
 	"\x0eGroupsResponse\x120\n" +

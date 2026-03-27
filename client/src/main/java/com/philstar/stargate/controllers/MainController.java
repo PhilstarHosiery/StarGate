@@ -17,6 +17,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -141,9 +144,16 @@ public class MainController {
         messagesBox.getChildren().add(row);
     }
 
+    private static final DateTimeFormatter TIMESTAMP_FMT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+
     private String formatTime(String iso) {
-        if (iso == null || iso.length() < 16) return "";
-        return iso.substring(11, 16);
+        if (iso == null || iso.isEmpty()) return "";
+        try {
+            return TIMESTAMP_FMT.format(Instant.parse(iso));
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private void scrollToBottom() {
@@ -178,7 +188,7 @@ public class MainController {
             ChatSession selected = state.getSelectedSession();
             if (selected != null && selected.getSessionId().equals(event.getSessionId())) {
                 String dir = "Contact".equals(event.getSenderType()) ? "INBOUND" : "OUTBOUND";
-                addBubble(event.getMessageText(), dir, "");
+                addBubble(event.getMessageText(), dir, event.getTimestamp());
                 scrollToBottom();
             }
         }

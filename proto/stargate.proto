@@ -111,6 +111,7 @@ message MessageEvent {
   string session_id   = 1;
   string message_text = 2;
   string sender_type  = 3;  // "Contact" | user_id of the replying user
+  string timestamp    = 4;  // ISO 8601
 }
 
 // -----------------------------------------------------------------------------

@@ -98,6 +98,7 @@ sourceSets {
     }
 }
 
+
 extraJavaModuleInfo {
     automaticModule("io.grpc:grpc-netty-shaded", "grpc.grpc_netty_shaded")
     automaticModule("io.grpc:grpc-core", "grpc.core")
@@ -169,11 +170,11 @@ jlink {
         installerName  = 'StarGate-Setup'
         // Strip -SNAPSHOT so jpackage accepts the version string
         appVersion     = project.version.toString().replace('-SNAPSHOT', '')
-        vendor         = 'Philstar'
+        vendor         = 'Philstar Hosiery, Inc.'
 
         // 'exe' works out of the box.
         // Switch to 'msi' if WiX Toolset 3.x is installed (adds Windows Installer support).
-        installerType  = 'exe'
+        installerType  = 'msi'
 
         installerOptions = [
             '--win-per-user-install',

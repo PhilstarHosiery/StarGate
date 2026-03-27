@@ -205,17 +205,25 @@ func (d *DB) GetSessionsByUserAccess(userID string) ([]*models.Session, error) {
 		rows, err = d.sql.Query(
 			`SELECT s.session_id, s.contact_phone, s.status
 			 FROM sessions s
-			 ORDER BY s.session_id`,
+			 LEFT JOIN (
+			   SELECT session_id, MAX(timestamp) AS last_at
+			   FROM messages GROUP BY session_id
+			 ) m ON m.session_id = s.session_id
+			 ORDER BY m.last_at DESC NULLS LAST`,
 		)
 	} else {
 		rows, err = d.sql.Query(
 			`SELECT s.session_id, s.contact_phone, s.status
 			 FROM sessions s
 			 JOIN contacts c ON c.contact_phone = s.contact_phone
+			 LEFT JOIN (
+			   SELECT session_id, MAX(timestamp) AS last_at
+			   FROM messages GROUP BY session_id
+			 ) m ON m.session_id = s.session_id
 			 WHERE c.group_id IN (
 			   SELECT group_id FROM user_groups WHERE user_id = ?
 			 )
-			 ORDER BY s.session_id`,
+			 ORDER BY m.last_at DESC NULLS LAST`,
 			userID,
 		)
 	}
@@ -312,7 +320,7 @@ func (d *DB) GetMessagesBySession(sessionID string) ([]*models.Message, error) {
 		if err := rows.Scan(&m.MessageID, &m.SessionID, &m.Direction, &m.Text, &m.SentByUserID, &ts); err != nil {
 			return nil, fmt.Errorf("db: scan message: %w", err)
 		}
-		m.Timestamp, _ = time.Parse("2006-01-02 15:04:05", ts)
+		m.Timestamp, _ = time.Parse(time.RFC3339, ts)
 		msgs = append(msgs, &m)
 	}
 	return msgs, rows.Err()
@@ -320,14 +328,15 @@ func (d *DB) GetMessagesBySession(sessionID string) ([]*models.Message, error) {
 
 // CreateMessage inserts a new message record. sentByUserID may be empty for inbound messages.
 // gatewayMessageID is the SMS Gate message ID used to deduplicate webhook retries; pass empty for outbound.
+// timestamp is the authoritative message time (e.g. receivedAt from SMS Gate for inbound, time.Now() for outbound).
 // Returns (nil, nil) if the message was already recorded (duplicate).
-func (d *DB) CreateMessage(sessionID, direction, text, sentByUserID, gatewayMessageID string) (*models.Message, error) {
+func (d *DB) CreateMessage(sessionID, direction, text, sentByUserID, gatewayMessageID string, timestamp time.Time) (*models.Message, error) {
 	m := &models.Message{
 		MessageID: newID(),
 		SessionID: sessionID,
 		Direction: direction,
 		Text:      text,
-		Timestamp: time.Now().UTC(),
+		Timestamp: timestamp,
 	}
 	if sentByUserID != "" {
 		m.SentByUserID = sql.NullString{String: sentByUserID, Valid: true}

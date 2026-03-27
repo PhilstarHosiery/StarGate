@@ -13,3 +13,4 @@ desktop.ini
 *.iml
 *.ipr
 *.iws
+backend/config/config.yaml
