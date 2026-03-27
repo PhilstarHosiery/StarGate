@@ -100,19 +100,21 @@ message ChatSession {
 }
 
 message Message {
-  string message_id      = 1;
-  string session_id      = 2;
-  string direction       = 3;  // "INBOUND" | "OUTBOUND"
-  string text            = 4;
-  string sent_by_user_id = 5;  // empty if inbound (sent by contact)
-  string timestamp       = 6;  // ISO 8601
+  string message_id        = 1;
+  string session_id        = 2;
+  string direction         = 3;  // "INBOUND" | "OUTBOUND"
+  string text              = 4;
+  string sent_by_user_id   = 5;  // empty if inbound (sent by contact)
+  string timestamp         = 6;  // ISO 8601
+  string sent_by_username  = 7;  // empty if inbound
 }
 
 message MessageEvent {
-  string session_id   = 1;
-  string message_text = 2;
-  string sender_type  = 3;  // "Contact" | user_id of the replying user
-  string timestamp    = 4;  // ISO 8601
+  string session_id      = 1;
+  string message_text    = 2;
+  string sender_type     = 3;  // "Contact" | user_id of the replying user
+  string timestamp       = 4;  // ISO 8601
+  string sender_username = 5;  // empty for inbound
 }
 
 // -----------------------------------------------------------------------------

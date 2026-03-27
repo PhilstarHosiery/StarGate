@@ -118,24 +118,35 @@ public class MainController {
     private void renderMessages(List<Message> messages) {
         messagesBox.getChildren().clear();
         for (Message msg : messages) {
-            addBubble(msg.getText(), msg.getDirection(), msg.getTimestamp());
+            addBubble(msg.getText(), msg.getDirection(), msg.getTimestamp(),
+                      msg.getSentByUserId(), msg.getSentByUsername());
         }
     }
 
-    private void addBubble(String text, String direction, String timestamp) {
-        boolean out = "OUTBOUND".equals(direction);
+    private void addBubble(String text, String direction, String timestamp,
+                            String sentByUserId, String senderUsername) {
+        boolean out  = "OUTBOUND".equals(direction);
+        boolean mine = out && AppState.get().getUserId().equals(sentByUserId);
 
         Label textLabel = new Label(text);
         textLabel.setWrapText(true);
         textLabel.setMaxWidth(420);
         textLabel.setPadding(new Insets(8, 14, 8, 14));
-        textLabel.getStyleClass().add(out ? "bubble-out" : "bubble-in");
+        if (out) {
+            textLabel.getStyleClass().add(mine ? "bubble-out-mine" : "bubble-out-other");
+        } else {
+            textLabel.getStyleClass().add("bubble-in");
+        }
 
-        Label timeLabel = new Label(formatTime(timestamp));
-        timeLabel.getStyleClass().add("bubble-time");
+        String meta = formatTime(timestamp);
+        if (out && !senderUsername.isEmpty()) {
+            meta = senderUsername + " • " + meta;
+        }
+        Label metaLabel = new Label(meta);
+        metaLabel.getStyleClass().add("bubble-time");
+        if (out) metaLabel.setAlignment(Pos.CENTER_RIGHT);
 
-        VBox bubble = new VBox(2, textLabel, timeLabel);
-        if (out) timeLabel.setAlignment(Pos.CENTER_RIGHT);
+        VBox bubble = new VBox(2, textLabel, metaLabel);
 
         HBox row = new HBox(bubble);
         row.setPadding(new Insets(3, 12, 3, 12));
@@ -187,8 +198,11 @@ public class MainController {
         if (!event.getMessageText().isEmpty()) {
             ChatSession selected = state.getSelectedSession();
             if (selected != null && selected.getSessionId().equals(event.getSessionId())) {
-                String dir = "Contact".equals(event.getSenderType()) ? "INBOUND" : "OUTBOUND";
-                addBubble(event.getMessageText(), dir, event.getTimestamp());
+                boolean inbound = "Contact".equals(event.getSenderType());
+                String dir = inbound ? "INBOUND" : "OUTBOUND";
+                addBubble(event.getMessageText(), dir, event.getTimestamp(),
+                          inbound ? "" : event.getSenderType(),
+                          inbound ? "" : event.getSenderUsername());
                 scrollToBottom();
             }
         }
@@ -224,7 +238,8 @@ public class MainController {
         if (session == null) return;
 
         replyField.clear();
-        addBubble(text, "OUTBOUND", "");
+        addBubble(text, "OUTBOUND", Instant.now().toString(),
+                  state.getUserId(), state.getUsername());
         scrollToBottom();
 
         String userId = state.getUserId();

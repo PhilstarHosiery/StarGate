@@ -150,17 +150,21 @@ func (s *Server) GetMessages(ctx context.Context, req *pb.SessionRequest) (*pb.M
 
 	var pbMsgs []*pb.Message
 	for _, m := range msgs {
-		sentBy := ""
+		sentBy, sentByUsername := "", ""
 		if m.SentByUserID.Valid {
 			sentBy = m.SentByUserID.String
+			if u, err := s.db.GetUserByID(sentBy); err == nil && u != nil {
+				sentByUsername = u.Username
+			}
 		}
 		pbMsgs = append(pbMsgs, &pb.Message{
-			MessageId:    m.MessageID,
-			SessionId:    m.SessionID,
-			Direction:    m.Direction,
-			Text:         m.Text,
-			SentByUserId: sentBy,
-			Timestamp:    m.Timestamp.Format("2006-01-02T15:04:05Z"),
+			MessageId:       m.MessageID,
+			SessionId:       m.SessionID,
+			Direction:       m.Direction,
+			Text:            m.Text,
+			SentByUserId:    sentBy,
+			SentByUsername:  sentByUsername,
+			Timestamp:       m.Timestamp.Format(time.RFC3339),
 		})
 	}
 
@@ -230,11 +234,16 @@ func (s *Server) SendReply(ctx context.Context, req *pb.ReplyRequest) (*pb.Actio
 				others = append(others, uid)
 			}
 		}
+		senderUsername := ""
+		if u, err := s.db.GetUserByID(req.UserId); err == nil && u != nil {
+			senderUsername = u.Username
+		}
 		s.streams.Broadcast(&pb.MessageEvent{
-			SessionId:   req.SessionId,
-			MessageText: req.MessageText,
-			SenderType:  req.UserId,
-			Timestamp:   time.Now().UTC().Format(time.RFC3339),
+			SessionId:      req.SessionId,
+			MessageText:    req.MessageText,
+			SenderType:     req.UserId,
+			Timestamp:      time.Now().UTC().Format(time.RFC3339),
+			SenderUsername: senderUsername,
 		}, others)
 	}
 

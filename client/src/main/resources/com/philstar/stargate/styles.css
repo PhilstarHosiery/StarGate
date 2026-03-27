@@ -216,9 +216,17 @@
     -fx-font-size: 13px;
 }
 
-/* Outbound bubble — from user, right-aligned */
-.bubble-out {
+/* Outbound bubble — current user, right-aligned */
+.bubble-out-mine {
     -fx-background-color: #0f3460;
+    -fx-text-fill: white;
+    -fx-background-radius: 14 14 3 14;
+    -fx-font-size: 13px;
+}
+
+/* Outbound bubble — another logged-in user, right-aligned */
+.bubble-out-other {
+    -fx-background-color: #2e6da4;
     -fx-text-fill: white;
     -fx-background-radius: 14 14 3 14;
     -fx-font-size: 13px;
