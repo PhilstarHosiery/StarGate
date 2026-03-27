@@ -142,6 +142,11 @@
     -fx-font-weight: bold;
 }
 
+.session-phone {
+    -fx-text-fill: #778;
+    -fx-font-size: 11px;
+}
+
 .session-group {
     -fx-text-fill: #778;
     -fx-font-size: 11px;

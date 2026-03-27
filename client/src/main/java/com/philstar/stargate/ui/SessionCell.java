@@ -21,6 +21,7 @@ public class SessionCell extends ListCell<ChatSession> {
 
     private final VBox  root;
     private final Label nameLabel;
+    private final Label phoneLabel;
     private final Label groupLabel;
     private final Label statusLabel;
 
@@ -36,10 +37,13 @@ public class SessionCell extends ListCell<ChatSession> {
         HBox.setHgrow(header.getChildren().get(1), Priority.ALWAYS);
         header.setSpacing(4);
 
+        phoneLabel = new Label();
+        phoneLabel.getStyleClass().add("session-phone");
+
         groupLabel  = new Label();
         groupLabel.getStyleClass().add("session-group");
 
-        root = new VBox(3, header, groupLabel);
+        root = new VBox(2, header, phoneLabel, groupLabel);
         root.setPadding(new Insets(8, 12, 8, 12));
         root.setMaxWidth(Double.MAX_VALUE);
     }
@@ -53,7 +57,14 @@ public class SessionCell extends ListCell<ChatSession> {
         }
 
         AppState state = AppState.get();
-        nameLabel.setText(state.getContactDisplayName(session.getContactPhone()));
+        String phone = session.getContactPhone();
+        String name  = state.getContactDisplayName(phone);
+        boolean hasName = !name.equals(phone);
+
+        nameLabel.setText(name);
+        phoneLabel.setText(phone);
+        phoneLabel.setManaged(hasName);
+        phoneLabel.setVisible(hasName);
         groupLabel.setText(state.getGroupName(session.getGroupId()));
         statusLabel.setText(session.getStatus());
 

@@ -318,7 +318,8 @@ type ChatSession struct {
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	ContactPhone  string                 `protobuf:"bytes,2,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"`
 	GroupId       string                 `protobuf:"bytes,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"` // "OPEN" | "CLOSED"
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`                              // "OPEN" | "CLOSED"
+	ContactName   string                 `protobuf:"bytes,5,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"` // empty if not yet assigned
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -377,6 +378,13 @@ func (x *ChatSession) GetGroupId() string {
 func (x *ChatSession) GetStatus() string {
 	if x != nil {
 		return x.Status
+	}
+	return ""
+}
+
+func (x *ChatSession) GetContactName() string {
+	if x != nil {
+		return x.ContactName
 	}
 	return ""
 }
@@ -1480,13 +1488,14 @@ const file_stargate_proto_rawDesc = "" +
 	"\fassigned_sim\x18\x04 \x01(\x05R\vassignedSim\"+\n" +
 	"\x05Group\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x84\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xa7\x01\n" +
 	"\vChatSession\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12#\n" +
 	"\rcontact_phone\x18\x02 \x01(\tR\fcontactPhone\x12\x19\n" +
 	"\bgroup_id\x18\x03 \x01(\tR\agroupId\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\tR\x06status\"\xbe\x01\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12!\n" +
+	"\fcontact_name\x18\x05 \x01(\tR\vcontactName\"\xbe\x01\n" +
 	"\aMessage\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1d\n" +

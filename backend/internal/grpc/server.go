@@ -87,15 +87,21 @@ func (s *Server) GetSessions(ctx context.Context, req *pb.User) (*pb.SessionsRes
 		if err != nil {
 			slog.Warn("GetSessions: contact lookup failed", "phone", sess.ContactPhone, "err", err)
 		}
-		groupID := ""
-		if contact != nil && contact.GroupID.Valid {
-			groupID = contact.GroupID.String
+		groupID, contactName := "", ""
+		if contact != nil {
+			if contact.GroupID.Valid {
+				groupID = contact.GroupID.String
+			}
+			if contact.Name.Valid {
+				contactName = contact.Name.String
+			}
 		}
 		pbSessions = append(pbSessions, &pb.ChatSession{
 			SessionId:    sess.SessionID,
 			ContactPhone: sess.ContactPhone,
 			GroupId:      groupID,
 			Status:       sess.Status,
+			ContactName:  contactName,
 		})
 	}
 
@@ -116,9 +122,14 @@ func (s *Server) GetSession(ctx context.Context, req *pb.SessionRequest) (*pb.Ch
 	if err != nil {
 		slog.Warn("GetSession: contact lookup failed", "phone", sess.ContactPhone, "err", err)
 	}
-	groupID := ""
-	if contact != nil && contact.GroupID.Valid {
-		groupID = contact.GroupID.String
+	groupID, contactName := "", ""
+	if contact != nil {
+		if contact.GroupID.Valid {
+			groupID = contact.GroupID.String
+		}
+		if contact.Name.Valid {
+			contactName = contact.Name.String
+		}
 	}
 
 	return &pb.ChatSession{
@@ -126,6 +137,7 @@ func (s *Server) GetSession(ctx context.Context, req *pb.SessionRequest) (*pb.Ch
 		ContactPhone: sess.ContactPhone,
 		GroupId:      groupID,
 		Status:       sess.Status,
+		ContactName:  contactName,
 	}, nil
 }
 

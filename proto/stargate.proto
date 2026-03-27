@@ -96,6 +96,7 @@ message ChatSession {
   string contact_phone  = 2;
   string group_id       = 3;
   string status         = 4;  // "OPEN" | "CLOSED"
+  string contact_name   = 5;  // empty if not yet assigned
 }
 
 message Message {

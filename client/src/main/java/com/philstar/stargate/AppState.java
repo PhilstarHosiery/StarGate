@@ -80,6 +80,11 @@ public class AppState {
     }
 
     public void setSessions(List<ChatSession> list) {
+        for (ChatSession s : list) {
+            if (!s.getContactName().isEmpty()) {
+                contactNames.put(s.getContactPhone(), s.getContactName());
+            }
+        }
         sessions.setAll(list);
     }
 
@@ -89,6 +94,9 @@ public class AppState {
      * the list stays sorted with the most recently active session at the top.
      */
     public void replaceOrAddSession(ChatSession newSession) {
+        if (!newSession.getContactName().isEmpty()) {
+            contactNames.put(newSession.getContactPhone(), newSession.getContactName());
+        }
         for (int i = 0; i < sessions.size(); i++) {
             if (sessions.get(i).getSessionId().equals(newSession.getSessionId())) {
                 sessions.remove(i);
