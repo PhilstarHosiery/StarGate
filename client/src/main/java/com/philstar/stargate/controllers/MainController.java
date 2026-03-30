@@ -324,7 +324,13 @@ public class MainController {
                             session.getContactPhone(), chosenId, state.getUserId());
                 }
             };
-            task.setOnSucceeded(e -> contactGroupLabel.setText(chosenName));
+            task.setOnSucceeded(e -> {
+                contactGroupLabel.setText(chosenName);
+                // Rebuild the session with the new groupId so SessionCell re-renders correctly.
+                ChatSession updated = session.toBuilder().setGroupId(chosenId).build();
+                state.replaceOrAddSession(updated);
+                state.setSelectedSession(updated);
+            });
             task.setOnFailed(e -> showError("Assign failed."));
             bg(task);
         });
