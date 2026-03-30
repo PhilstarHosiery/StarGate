@@ -60,8 +60,10 @@
                         <Label fx:id="contactGroupLabel" styleClass="contact-group"/>
                     </VBox>
                     <Button text="Rename" onAction="#onRename" styleClass="btn-action"/>
-                    <Button text="Assign" onAction="#onAssign" styleClass="btn-action"/>
-                    <Button text="Retire" onAction="#onRetire" styleClass="btn-retire"/>
+                    <Button fx:id="assignButton" text="Assign" onAction="#onAssign"
+                            styleClass="btn-action" visible="false" managed="false"/>
+                    <Button fx:id="retireButton" text="Retire" onAction="#onRetire"
+                            styleClass="btn-retire" visible="false" managed="false"/>
                 </HBox>
 
                 <!-- Message scroll area -->

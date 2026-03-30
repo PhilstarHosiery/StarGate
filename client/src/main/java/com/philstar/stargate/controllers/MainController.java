@@ -29,8 +29,10 @@ import java.util.Optional;
 public class MainController {
 
     // Toolbar
-    @FXML private Label usernameLabel;
+    @FXML private Label  usernameLabel;
     @FXML private Button adminButton;
+    @FXML private Button assignButton;
+    @FXML private Button retireButton;
 
     // Session list
     @FXML private TextField             searchField;
@@ -59,6 +61,10 @@ public class MainController {
         if (state.isHasGlobalAccess()) {
             adminButton.setVisible(true);
             adminButton.setManaged(true);
+            assignButton.setVisible(true);
+            assignButton.setManaged(true);
+            retireButton.setVisible(true);
+            retireButton.setManaged(true);
         }
 
         sessionList.setCellFactory(lv -> new SessionCell());
