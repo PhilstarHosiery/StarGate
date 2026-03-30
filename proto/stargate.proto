@@ -37,8 +37,12 @@ service StarGateCore {
   // Set or update a contact's group association
   rpc AssignContact(AssignRequest) returns (ActionResponse);
 
-  // List all groups — used by clients to populate the AssignContact dropdown
+  // List all groups — used by clients to populate the AssignContact dropdown.
+  // HR (global access) receives all groups; others receive only their accessible groups.
   rpc ListGroups(User) returns (GroupsResponse);
+
+  // Create a new outbound session to a phone number that doesn't yet exist in the system
+  rpc CreateSession(CreateSessionRequest) returns (ChatSession);
 
   // Admin — HR (global-access) only
   rpc ListUsers(User) returns (UsersResponse);
@@ -163,6 +167,13 @@ message AssignRequest {
   string contact_phone = 1;
   string group_id      = 2;
   string user_id       = 3;
+}
+
+message CreateSessionRequest {
+  string phone_number       = 1;
+  string group_id           = 2;
+  string contact_name       = 3;  // optional
+  string requesting_user_id = 4;
 }
 
 // -----------------------------------------------------------------------------

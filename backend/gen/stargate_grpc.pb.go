@@ -29,6 +29,7 @@ const (
 	StarGateCore_RenameContact_FullMethodName      = "/philstar.stargate.StarGateCore/RenameContact"
 	StarGateCore_AssignContact_FullMethodName      = "/philstar.stargate.StarGateCore/AssignContact"
 	StarGateCore_ListGroups_FullMethodName         = "/philstar.stargate.StarGateCore/ListGroups"
+	StarGateCore_CreateSession_FullMethodName      = "/philstar.stargate.StarGateCore/CreateSession"
 	StarGateCore_ListUsers_FullMethodName          = "/philstar.stargate.StarGateCore/ListUsers"
 	StarGateCore_CreateUser_FullMethodName         = "/philstar.stargate.StarGateCore/CreateUser"
 	StarGateCore_DeleteUser_FullMethodName         = "/philstar.stargate.StarGateCore/DeleteUser"
@@ -64,8 +65,11 @@ type StarGateCoreClient interface {
 	RenameContact(ctx context.Context, in *RenameRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	// Set or update a contact's group association
 	AssignContact(ctx context.Context, in *AssignRequest, opts ...grpc.CallOption) (*ActionResponse, error)
-	// List all groups — used by clients to populate the AssignContact dropdown
+	// List all groups — used by clients to populate the AssignContact dropdown.
+	// HR (global access) receives all groups; others receive only their accessible groups.
 	ListGroups(ctx context.Context, in *User, opts ...grpc.CallOption) (*GroupsResponse, error)
+	// Create a new outbound session to a phone number that doesn't yet exist in the system
+	CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...grpc.CallOption) (*ChatSession, error)
 	// Admin — HR (global-access) only
 	ListUsers(ctx context.Context, in *User, opts ...grpc.CallOption) (*UsersResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*ActionResponse, error)
@@ -193,6 +197,16 @@ func (c *starGateCoreClient) ListGroups(ctx context.Context, in *User, opts ...g
 	return out, nil
 }
 
+func (c *starGateCoreClient) CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...grpc.CallOption) (*ChatSession, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChatSession)
+	err := c.cc.Invoke(ctx, StarGateCore_CreateSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *starGateCoreClient) ListUsers(ctx context.Context, in *User, opts ...grpc.CallOption) (*UsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UsersResponse)
@@ -289,8 +303,11 @@ type StarGateCoreServer interface {
 	RenameContact(context.Context, *RenameRequest) (*ActionResponse, error)
 	// Set or update a contact's group association
 	AssignContact(context.Context, *AssignRequest) (*ActionResponse, error)
-	// List all groups — used by clients to populate the AssignContact dropdown
+	// List all groups — used by clients to populate the AssignContact dropdown.
+	// HR (global access) receives all groups; others receive only their accessible groups.
 	ListGroups(context.Context, *User) (*GroupsResponse, error)
+	// Create a new outbound session to a phone number that doesn't yet exist in the system
+	CreateSession(context.Context, *CreateSessionRequest) (*ChatSession, error)
 	// Admin — HR (global-access) only
 	ListUsers(context.Context, *User) (*UsersResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*ActionResponse, error)
@@ -338,6 +355,9 @@ func (UnimplementedStarGateCoreServer) AssignContact(context.Context, *AssignReq
 }
 func (UnimplementedStarGateCoreServer) ListGroups(context.Context, *User) (*GroupsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListGroups not implemented")
+}
+func (UnimplementedStarGateCoreServer) CreateSession(context.Context, *CreateSessionRequest) (*ChatSession, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateSession not implemented")
 }
 func (UnimplementedStarGateCoreServer) ListUsers(context.Context, *User) (*UsersResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListUsers not implemented")
@@ -554,6 +574,24 @@ func _StarGateCore_ListGroups_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StarGateCore_CreateSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StarGateCoreServer).CreateSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StarGateCore_CreateSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StarGateCoreServer).CreateSession(ctx, req.(*CreateSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _StarGateCore_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(User)
 	if err := dec(in); err != nil {
@@ -722,6 +760,10 @@ var StarGateCore_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListGroups",
 			Handler:    _StarGateCore_ListGroups_Handler,
+		},
+		{
+			MethodName: "CreateSession",
+			Handler:    _StarGateCore_CreateSession_Handler,
 		},
 		{
 			MethodName: "ListUsers",

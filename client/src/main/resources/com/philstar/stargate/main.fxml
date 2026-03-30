@@ -29,7 +29,8 @@
         <VBox styleClass="sidebar" prefWidth="280" minWidth="200">
             <HBox styleClass="sidebar-header" alignment="CENTER_LEFT">
                 <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
-                <Label text="Conversations" styleClass="sidebar-heading"/>
+                <Label text="Conversations" styleClass="sidebar-heading" HBox.hgrow="ALWAYS"/>
+                <Button text="+" onAction="#onNewSession" styleClass="btn-new-session"/>
             </HBox>
             <TextField fx:id="searchField" promptText="Search…" styleClass="search-field">
                 <VBox.margin><Insets top="8" right="8" bottom="4" left="8"/></VBox.margin>

@@ -85,6 +85,15 @@ public class GrpcClient {
                 .getGroupsList();
     }
 
+    public ChatSession createSession(String phone, String groupId, String contactName, String requestingUserId) {
+        return blocking.createSession(CreateSessionRequest.newBuilder()
+                .setPhoneNumber(phone)
+                .setGroupId(groupId)
+                .setContactName(contactName)
+                .setRequestingUserId(requestingUserId)
+                .build());
+    }
+
     // -------------------------------------------------------------------------
     // Admin
     // -------------------------------------------------------------------------

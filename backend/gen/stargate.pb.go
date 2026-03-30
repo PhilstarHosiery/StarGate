@@ -1017,6 +1017,74 @@ func (x *AssignRequest) GetUserId() string {
 	return ""
 }
 
+type CreateSessionRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	PhoneNumber      string                 `protobuf:"bytes,1,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
+	GroupId          string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	ContactName      string                 `protobuf:"bytes,3,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"` // optional
+	RequestingUserId string                 `protobuf:"bytes,4,opt,name=requesting_user_id,json=requestingUserId,proto3" json:"requesting_user_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CreateSessionRequest) Reset() {
+	*x = CreateSessionRequest{}
+	mi := &file_stargate_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateSessionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateSessionRequest) ProtoMessage() {}
+
+func (x *CreateSessionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stargate_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateSessionRequest.ProtoReflect.Descriptor instead.
+func (*CreateSessionRequest) Descriptor() ([]byte, []int) {
+	return file_stargate_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *CreateSessionRequest) GetPhoneNumber() string {
+	if x != nil {
+		return x.PhoneNumber
+	}
+	return ""
+}
+
+func (x *CreateSessionRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *CreateSessionRequest) GetContactName() string {
+	if x != nil {
+		return x.ContactName
+	}
+	return ""
+}
+
+func (x *CreateSessionRequest) GetRequestingUserId() string {
+	if x != nil {
+		return x.RequestingUserId
+	}
+	return ""
+}
+
 type UserInfo struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -1029,7 +1097,7 @@ type UserInfo struct {
 
 func (x *UserInfo) Reset() {
 	*x = UserInfo{}
-	mi := &file_stargate_proto_msgTypes[17]
+	mi := &file_stargate_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1041,7 +1109,7 @@ func (x *UserInfo) String() string {
 func (*UserInfo) ProtoMessage() {}
 
 func (x *UserInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[17]
+	mi := &file_stargate_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1054,7 +1122,7 @@ func (x *UserInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserInfo.ProtoReflect.Descriptor instead.
 func (*UserInfo) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{17}
+	return file_stargate_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UserInfo) GetUserId() string {
@@ -1094,7 +1162,7 @@ type UsersResponse struct {
 
 func (x *UsersResponse) Reset() {
 	*x = UsersResponse{}
-	mi := &file_stargate_proto_msgTypes[18]
+	mi := &file_stargate_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1106,7 +1174,7 @@ func (x *UsersResponse) String() string {
 func (*UsersResponse) ProtoMessage() {}
 
 func (x *UsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[18]
+	mi := &file_stargate_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1119,7 +1187,7 @@ func (x *UsersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UsersResponse.ProtoReflect.Descriptor instead.
 func (*UsersResponse) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{18}
+	return file_stargate_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UsersResponse) GetUsers() []*UserInfo {
@@ -1139,7 +1207,7 @@ type CreateGroupRequest struct {
 
 func (x *CreateGroupRequest) Reset() {
 	*x = CreateGroupRequest{}
-	mi := &file_stargate_proto_msgTypes[19]
+	mi := &file_stargate_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1151,7 +1219,7 @@ func (x *CreateGroupRequest) String() string {
 func (*CreateGroupRequest) ProtoMessage() {}
 
 func (x *CreateGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[19]
+	mi := &file_stargate_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1164,7 +1232,7 @@ func (x *CreateGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateGroupRequest.ProtoReflect.Descriptor instead.
 func (*CreateGroupRequest) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{19}
+	return file_stargate_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreateGroupRequest) GetName() string {
@@ -1192,7 +1260,7 @@ type RenameGroupRequest struct {
 
 func (x *RenameGroupRequest) Reset() {
 	*x = RenameGroupRequest{}
-	mi := &file_stargate_proto_msgTypes[20]
+	mi := &file_stargate_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1204,7 +1272,7 @@ func (x *RenameGroupRequest) String() string {
 func (*RenameGroupRequest) ProtoMessage() {}
 
 func (x *RenameGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[20]
+	mi := &file_stargate_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1217,7 +1285,7 @@ func (x *RenameGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameGroupRequest.ProtoReflect.Descriptor instead.
 func (*RenameGroupRequest) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{20}
+	return file_stargate_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *RenameGroupRequest) GetGroupId() string {
@@ -1251,7 +1319,7 @@ type DeleteGroupRequest struct {
 
 func (x *DeleteGroupRequest) Reset() {
 	*x = DeleteGroupRequest{}
-	mi := &file_stargate_proto_msgTypes[21]
+	mi := &file_stargate_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1263,7 +1331,7 @@ func (x *DeleteGroupRequest) String() string {
 func (*DeleteGroupRequest) ProtoMessage() {}
 
 func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[21]
+	mi := &file_stargate_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1276,7 +1344,7 @@ func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{21}
+	return file_stargate_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *DeleteGroupRequest) GetGroupId() string {
@@ -1305,7 +1373,7 @@ type CreateUserRequest struct {
 
 func (x *CreateUserRequest) Reset() {
 	*x = CreateUserRequest{}
-	mi := &file_stargate_proto_msgTypes[22]
+	mi := &file_stargate_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1317,7 +1385,7 @@ func (x *CreateUserRequest) String() string {
 func (*CreateUserRequest) ProtoMessage() {}
 
 func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[22]
+	mi := &file_stargate_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1330,7 +1398,7 @@ func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateUserRequest.ProtoReflect.Descriptor instead.
 func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{22}
+	return file_stargate_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CreateUserRequest) GetUsername() string {
@@ -1371,7 +1439,7 @@ type DeleteUserRequest struct {
 
 func (x *DeleteUserRequest) Reset() {
 	*x = DeleteUserRequest{}
-	mi := &file_stargate_proto_msgTypes[23]
+	mi := &file_stargate_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1383,7 +1451,7 @@ func (x *DeleteUserRequest) String() string {
 func (*DeleteUserRequest) ProtoMessage() {}
 
 func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[23]
+	mi := &file_stargate_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1396,7 +1464,7 @@ func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUserRequest.ProtoReflect.Descriptor instead.
 func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{23}
+	return file_stargate_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *DeleteUserRequest) GetUserId() string {
@@ -1425,7 +1493,7 @@ type SetPermissionsRequest struct {
 
 func (x *SetPermissionsRequest) Reset() {
 	*x = SetPermissionsRequest{}
-	mi := &file_stargate_proto_msgTypes[24]
+	mi := &file_stargate_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1437,7 +1505,7 @@ func (x *SetPermissionsRequest) String() string {
 func (*SetPermissionsRequest) ProtoMessage() {}
 
 func (x *SetPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[24]
+	mi := &file_stargate_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1450,7 +1518,7 @@ func (x *SetPermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPermissionsRequest.ProtoReflect.Descriptor instead.
 func (*SetPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{24}
+	return file_stargate_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *SetPermissionsRequest) GetUserId() string {
@@ -1557,7 +1625,12 @@ const file_stargate_proto_rawDesc = "" +
 	"\rAssignRequest\x12#\n" +
 	"\rcontact_phone\x18\x01 \x01(\tR\fcontactPhone\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\"\x88\x01\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\"\xa5\x01\n" +
+	"\x14CreateSessionRequest\x12!\n" +
+	"\fphone_number\x18\x01 \x01(\tR\vphoneNumber\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12!\n" +
+	"\fcontact_name\x18\x03 \x01(\tR\vcontactName\x12,\n" +
+	"\x12requesting_user_id\x18\x04 \x01(\tR\x10requestingUserId\"\x88\x01\n" +
 	"\bUserInfo\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12*\n" +
@@ -1587,7 +1660,7 @@ const file_stargate_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12*\n" +
 	"\x11has_global_access\x18\x02 \x01(\bR\x0fhasGlobalAccess\x12\x1b\n" +
 	"\tgroup_ids\x18\x03 \x03(\tR\bgroupIds\x12,\n" +
-	"\x12requesting_user_id\x18\x04 \x01(\tR\x10requestingUserId2\x94\v\n" +
+	"\x12requesting_user_id\x18\x04 \x01(\tR\x10requestingUserId2\xee\v\n" +
 	"\fStarGateCore\x12J\n" +
 	"\x05Login\x12\x1f.philstar.stargate.LoginRequest\x1a .philstar.stargate.LoginResponse\x12N\n" +
 	"\x10SubscribeToInbox\x12\x17.philstar.stargate.User\x1a\x1f.philstar.stargate.MessageEvent0\x01\x12K\n" +
@@ -1600,7 +1673,8 @@ const file_stargate_proto_rawDesc = "" +
 	"\rRenameContact\x12 .philstar.stargate.RenameRequest\x1a!.philstar.stargate.ActionResponse\x12T\n" +
 	"\rAssignContact\x12 .philstar.stargate.AssignRequest\x1a!.philstar.stargate.ActionResponse\x12H\n" +
 	"\n" +
-	"ListGroups\x12\x17.philstar.stargate.User\x1a!.philstar.stargate.GroupsResponse\x12F\n" +
+	"ListGroups\x12\x17.philstar.stargate.User\x1a!.philstar.stargate.GroupsResponse\x12X\n" +
+	"\rCreateSession\x12'.philstar.stargate.CreateSessionRequest\x1a\x1e.philstar.stargate.ChatSession\x12F\n" +
 	"\tListUsers\x12\x17.philstar.stargate.User\x1a .philstar.stargate.UsersResponse\x12U\n" +
 	"\n" +
 	"CreateUser\x12$.philstar.stargate.CreateUserRequest\x1a!.philstar.stargate.ActionResponse\x12U\n" +
@@ -1624,7 +1698,7 @@ func file_stargate_proto_rawDescGZIP() []byte {
 	return file_stargate_proto_rawDescData
 }
 
-var file_stargate_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_stargate_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_stargate_proto_goTypes = []any{
 	(*LoginRequest)(nil),          // 0: philstar.stargate.LoginRequest
 	(*LoginResponse)(nil),         // 1: philstar.stargate.LoginResponse
@@ -1643,20 +1717,21 @@ var file_stargate_proto_goTypes = []any{
 	(*ReplyRequest)(nil),          // 14: philstar.stargate.ReplyRequest
 	(*RenameRequest)(nil),         // 15: philstar.stargate.RenameRequest
 	(*AssignRequest)(nil),         // 16: philstar.stargate.AssignRequest
-	(*UserInfo)(nil),              // 17: philstar.stargate.UserInfo
-	(*UsersResponse)(nil),         // 18: philstar.stargate.UsersResponse
-	(*CreateGroupRequest)(nil),    // 19: philstar.stargate.CreateGroupRequest
-	(*RenameGroupRequest)(nil),    // 20: philstar.stargate.RenameGroupRequest
-	(*DeleteGroupRequest)(nil),    // 21: philstar.stargate.DeleteGroupRequest
-	(*CreateUserRequest)(nil),     // 22: philstar.stargate.CreateUserRequest
-	(*DeleteUserRequest)(nil),     // 23: philstar.stargate.DeleteUserRequest
-	(*SetPermissionsRequest)(nil), // 24: philstar.stargate.SetPermissionsRequest
+	(*CreateSessionRequest)(nil),  // 17: philstar.stargate.CreateSessionRequest
+	(*UserInfo)(nil),              // 18: philstar.stargate.UserInfo
+	(*UsersResponse)(nil),         // 19: philstar.stargate.UsersResponse
+	(*CreateGroupRequest)(nil),    // 20: philstar.stargate.CreateGroupRequest
+	(*RenameGroupRequest)(nil),    // 21: philstar.stargate.RenameGroupRequest
+	(*DeleteGroupRequest)(nil),    // 22: philstar.stargate.DeleteGroupRequest
+	(*CreateUserRequest)(nil),     // 23: philstar.stargate.CreateUserRequest
+	(*DeleteUserRequest)(nil),     // 24: philstar.stargate.DeleteUserRequest
+	(*SetPermissionsRequest)(nil), // 25: philstar.stargate.SetPermissionsRequest
 }
 var file_stargate_proto_depIdxs = []int32{
 	5,  // 0: philstar.stargate.SessionsResponse.sessions:type_name -> philstar.stargate.ChatSession
 	4,  // 1: philstar.stargate.GroupsResponse.groups:type_name -> philstar.stargate.Group
 	6,  // 2: philstar.stargate.MessagesResponse.messages:type_name -> philstar.stargate.Message
-	17, // 3: philstar.stargate.UsersResponse.users:type_name -> philstar.stargate.UserInfo
+	18, // 3: philstar.stargate.UsersResponse.users:type_name -> philstar.stargate.UserInfo
 	0,  // 4: philstar.stargate.StarGateCore.Login:input_type -> philstar.stargate.LoginRequest
 	2,  // 5: philstar.stargate.StarGateCore.SubscribeToInbox:input_type -> philstar.stargate.User
 	2,  // 6: philstar.stargate.StarGateCore.GetSessions:input_type -> philstar.stargate.User
@@ -1667,32 +1742,34 @@ var file_stargate_proto_depIdxs = []int32{
 	15, // 11: philstar.stargate.StarGateCore.RenameContact:input_type -> philstar.stargate.RenameRequest
 	16, // 12: philstar.stargate.StarGateCore.AssignContact:input_type -> philstar.stargate.AssignRequest
 	2,  // 13: philstar.stargate.StarGateCore.ListGroups:input_type -> philstar.stargate.User
-	2,  // 14: philstar.stargate.StarGateCore.ListUsers:input_type -> philstar.stargate.User
-	22, // 15: philstar.stargate.StarGateCore.CreateUser:input_type -> philstar.stargate.CreateUserRequest
-	23, // 16: philstar.stargate.StarGateCore.DeleteUser:input_type -> philstar.stargate.DeleteUserRequest
-	19, // 17: philstar.stargate.StarGateCore.CreateGroup:input_type -> philstar.stargate.CreateGroupRequest
-	20, // 18: philstar.stargate.StarGateCore.RenameGroup:input_type -> philstar.stargate.RenameGroupRequest
-	21, // 19: philstar.stargate.StarGateCore.DeleteGroup:input_type -> philstar.stargate.DeleteGroupRequest
-	24, // 20: philstar.stargate.StarGateCore.SetUserPermissions:input_type -> philstar.stargate.SetPermissionsRequest
-	1,  // 21: philstar.stargate.StarGateCore.Login:output_type -> philstar.stargate.LoginResponse
-	7,  // 22: philstar.stargate.StarGateCore.SubscribeToInbox:output_type -> philstar.stargate.MessageEvent
-	8,  // 23: philstar.stargate.StarGateCore.GetSessions:output_type -> philstar.stargate.SessionsResponse
-	5,  // 24: philstar.stargate.StarGateCore.GetSession:output_type -> philstar.stargate.ChatSession
-	10, // 25: philstar.stargate.StarGateCore.GetMessages:output_type -> philstar.stargate.MessagesResponse
-	11, // 26: philstar.stargate.StarGateCore.SendReply:output_type -> philstar.stargate.ActionResponse
-	5,  // 27: philstar.stargate.StarGateCore.RetireContact:output_type -> philstar.stargate.ChatSession
-	11, // 28: philstar.stargate.StarGateCore.RenameContact:output_type -> philstar.stargate.ActionResponse
-	11, // 29: philstar.stargate.StarGateCore.AssignContact:output_type -> philstar.stargate.ActionResponse
-	9,  // 30: philstar.stargate.StarGateCore.ListGroups:output_type -> philstar.stargate.GroupsResponse
-	18, // 31: philstar.stargate.StarGateCore.ListUsers:output_type -> philstar.stargate.UsersResponse
-	11, // 32: philstar.stargate.StarGateCore.CreateUser:output_type -> philstar.stargate.ActionResponse
-	11, // 33: philstar.stargate.StarGateCore.DeleteUser:output_type -> philstar.stargate.ActionResponse
-	4,  // 34: philstar.stargate.StarGateCore.CreateGroup:output_type -> philstar.stargate.Group
-	11, // 35: philstar.stargate.StarGateCore.RenameGroup:output_type -> philstar.stargate.ActionResponse
-	11, // 36: philstar.stargate.StarGateCore.DeleteGroup:output_type -> philstar.stargate.ActionResponse
-	11, // 37: philstar.stargate.StarGateCore.SetUserPermissions:output_type -> philstar.stargate.ActionResponse
-	21, // [21:38] is the sub-list for method output_type
-	4,  // [4:21] is the sub-list for method input_type
+	17, // 14: philstar.stargate.StarGateCore.CreateSession:input_type -> philstar.stargate.CreateSessionRequest
+	2,  // 15: philstar.stargate.StarGateCore.ListUsers:input_type -> philstar.stargate.User
+	23, // 16: philstar.stargate.StarGateCore.CreateUser:input_type -> philstar.stargate.CreateUserRequest
+	24, // 17: philstar.stargate.StarGateCore.DeleteUser:input_type -> philstar.stargate.DeleteUserRequest
+	20, // 18: philstar.stargate.StarGateCore.CreateGroup:input_type -> philstar.stargate.CreateGroupRequest
+	21, // 19: philstar.stargate.StarGateCore.RenameGroup:input_type -> philstar.stargate.RenameGroupRequest
+	22, // 20: philstar.stargate.StarGateCore.DeleteGroup:input_type -> philstar.stargate.DeleteGroupRequest
+	25, // 21: philstar.stargate.StarGateCore.SetUserPermissions:input_type -> philstar.stargate.SetPermissionsRequest
+	1,  // 22: philstar.stargate.StarGateCore.Login:output_type -> philstar.stargate.LoginResponse
+	7,  // 23: philstar.stargate.StarGateCore.SubscribeToInbox:output_type -> philstar.stargate.MessageEvent
+	8,  // 24: philstar.stargate.StarGateCore.GetSessions:output_type -> philstar.stargate.SessionsResponse
+	5,  // 25: philstar.stargate.StarGateCore.GetSession:output_type -> philstar.stargate.ChatSession
+	10, // 26: philstar.stargate.StarGateCore.GetMessages:output_type -> philstar.stargate.MessagesResponse
+	11, // 27: philstar.stargate.StarGateCore.SendReply:output_type -> philstar.stargate.ActionResponse
+	5,  // 28: philstar.stargate.StarGateCore.RetireContact:output_type -> philstar.stargate.ChatSession
+	11, // 29: philstar.stargate.StarGateCore.RenameContact:output_type -> philstar.stargate.ActionResponse
+	11, // 30: philstar.stargate.StarGateCore.AssignContact:output_type -> philstar.stargate.ActionResponse
+	9,  // 31: philstar.stargate.StarGateCore.ListGroups:output_type -> philstar.stargate.GroupsResponse
+	5,  // 32: philstar.stargate.StarGateCore.CreateSession:output_type -> philstar.stargate.ChatSession
+	19, // 33: philstar.stargate.StarGateCore.ListUsers:output_type -> philstar.stargate.UsersResponse
+	11, // 34: philstar.stargate.StarGateCore.CreateUser:output_type -> philstar.stargate.ActionResponse
+	11, // 35: philstar.stargate.StarGateCore.DeleteUser:output_type -> philstar.stargate.ActionResponse
+	4,  // 36: philstar.stargate.StarGateCore.CreateGroup:output_type -> philstar.stargate.Group
+	11, // 37: philstar.stargate.StarGateCore.RenameGroup:output_type -> philstar.stargate.ActionResponse
+	11, // 38: philstar.stargate.StarGateCore.DeleteGroup:output_type -> philstar.stargate.ActionResponse
+	11, // 39: philstar.stargate.StarGateCore.SetUserPermissions:output_type -> philstar.stargate.ActionResponse
+	22, // [22:40] is the sub-list for method output_type
+	4,  // [4:22] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -1709,7 +1786,7 @@ func file_stargate_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stargate_proto_rawDesc), len(file_stargate_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   25,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

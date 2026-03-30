@@ -8,6 +8,7 @@ import com.philstar.stargate.proto.ChatSession;
 import com.philstar.stargate.proto.Message;
 import com.philstar.stargate.proto.MessageEvent;
 import com.philstar.stargate.ui.SessionCell;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
@@ -282,6 +283,86 @@ public class MainController {
     // -------------------------------------------------------------------------
     // Contact actions
     // -------------------------------------------------------------------------
+
+    @FXML
+    private void onNewSession() {
+        AppState state = AppState.get();
+        Map<String, String> groups = state.getGroupNames();
+        if (groups.isEmpty()) {
+            showError("No groups available.");
+            return;
+        }
+
+        List<String> groupNames = new ArrayList<>(groups.values());
+        List<String> groupIds   = new ArrayList<>(groups.keySet());
+
+        // Build a custom dialog: phone (required), group (required), name (optional)
+        Dialog<ButtonType> dlg = new Dialog<>();
+        dlg.setTitle("New Conversation");
+        dlg.setHeaderText("Start an outbound conversation");
+        dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(16));
+
+        TextField phoneField = new TextField();
+        phoneField.setPromptText("+63...");
+
+        ChoiceBox<String> groupChoice = new ChoiceBox<>();
+        groupChoice.getItems().addAll(groupNames);
+        groupChoice.getSelectionModel().selectFirst();
+        groupChoice.setMaxWidth(Double.MAX_VALUE);
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Optional");
+
+        grid.add(new Label("Phone number:"), 0, 0);
+        grid.add(phoneField, 1, 0);
+        grid.add(new Label("Group:"), 0, 1);
+        grid.add(groupChoice, 1, 1);
+        grid.add(new Label("Contact name:"), 0, 2);
+        grid.add(nameField, 1, 2);
+        GridPane.setHgrow(phoneField,   javafx.scene.layout.Priority.ALWAYS);
+        GridPane.setHgrow(groupChoice,  javafx.scene.layout.Priority.ALWAYS);
+        GridPane.setHgrow(nameField,    javafx.scene.layout.Priority.ALWAYS);
+
+        dlg.getDialogPane().setContent(grid);
+        dlg.getDialogPane().lookupButton(ButtonType.OK).setDisable(true);
+        phoneField.textProperty().addListener((obs, o, n) ->
+                dlg.getDialogPane().lookupButton(ButtonType.OK).setDisable(n.trim().isEmpty()));
+        Platform.runLater(phoneField::requestFocus);
+
+        Optional<ButtonType> result = dlg.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) return;
+
+        String phone   = phoneField.getText().trim();
+        String groupId = groupIds.get(groupChoice.getSelectionModel().getSelectedIndex());
+        String name    = nameField.getText().trim();
+
+        Task<ChatSession> task = new Task<>() {
+            @Override
+            protected ChatSession call() {
+                return state.getGrpc().createSession(phone, groupId, name, state.getUserId());
+            }
+        };
+        task.setOnSucceeded(e -> {
+            ChatSession sess = task.getValue();
+            if (!name.isEmpty()) state.setContactName(phone, name);
+            state.replaceOrAddSession(sess);
+            state.setSelectedSession(sess);
+            sessionList.getSelectionModel().select(sess);
+        });
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            String msg = (ex instanceof StatusRuntimeException sre)
+                    ? sre.getStatus().getDescription()
+                    : "Failed to create session.";
+            showError(msg);
+        });
+        bg(task);
+    }
 
     @FXML
     private void onRename() {

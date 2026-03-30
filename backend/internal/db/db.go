@@ -485,6 +485,9 @@ func (d *DB) RetireContact(phone, userID string) (*models.Session, error) {
 	return newSession, nil
 }
 
+// ErrContactExists is returned when trying to create a contact whose phone number is already in use.
+var ErrContactExists = fmt.Errorf("contact already exists")
+
 // ListGroups returns all groups ordered by name.
 func (d *DB) ListGroups() ([]*models.Group, error) {
 	rows, err := d.sql.Query(
@@ -503,6 +506,67 @@ func (d *DB) ListGroups() ([]*models.Group, error) {
 		groups = append(groups, &g)
 	}
 	return groups, rows.Err()
+}
+
+// ListGroupsForUser returns groups the user has access to.
+// HR (global access) receives all groups; regular users receive only groups in their user_groups mapping.
+func (d *DB) ListGroupsForUser(userID string) ([]*models.Group, error) {
+	user, err := d.GetUserByID(userID)
+	if err != nil {
+		return nil, err
+	}
+	if user != nil && user.HasGlobalAccess {
+		return d.ListGroups()
+	}
+	rows, err := d.sql.Query(
+		`SELECT g.group_id, g.group_name FROM groups g
+		 JOIN user_groups ug ON ug.group_id = g.group_id
+		 WHERE ug.user_id = ?
+		 ORDER BY g.group_name`,
+		userID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("db: ListGroupsForUser: %w", err)
+	}
+	defer rows.Close()
+	var groups []*models.Group
+	for rows.Next() {
+		var g models.Group
+		if err := rows.Scan(&g.GroupID, &g.GroupName); err != nil {
+			return nil, fmt.Errorf("db: ListGroupsForUser scan: %w", err)
+		}
+		groups = append(groups, &g)
+	}
+	return groups, rows.Err()
+}
+
+// StartOutboundSession creates a new contact and an OPEN session for an outbound conversation.
+// Returns ErrContactExists if the phone number is already in the contacts table.
+func (d *DB) StartOutboundSession(phone, groupID, name string) (*models.Session, error) {
+	existing, err := d.GetContactByPhone(phone)
+	if err != nil {
+		return nil, err
+	}
+	if existing != nil {
+		return nil, ErrContactExists
+	}
+
+	var nameArg interface{}
+	if name != "" {
+		nameArg = name
+	}
+	if _, err = d.sql.Exec(
+		`INSERT INTO contacts (contact_phone, name, group_id, assigned_sim) VALUES (?, ?, ?, 0)`,
+		phone, nameArg, groupID,
+	); err != nil {
+		return nil, fmt.Errorf("db: StartOutboundSession insert contact: %w", err)
+	}
+
+	sess, err := d.CreateSession(phone)
+	if err != nil {
+		return nil, fmt.Errorf("db: StartOutboundSession create session: %w", err)
+	}
+	return sess, nil
 }
 
 // GetUsersWithAccessToGroup returns user IDs of all users who can see a given group.

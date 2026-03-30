@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -297,9 +298,10 @@ func (s *Server) AssignContact(ctx context.Context, req *pb.AssignRequest) (*pb.
 	return &pb.ActionResponse{Success: true}, nil
 }
 
-// ListGroups returns all groups, used by clients to populate the AssignContact dropdown.
+// ListGroups returns groups accessible to the requesting user.
+// HR (global access) receives all groups; others receive only groups they are mapped to.
 func (s *Server) ListGroups(ctx context.Context, req *pb.User) (*pb.GroupsResponse, error) {
-	groups, err := s.db.ListGroups()
+	groups, err := s.db.ListGroupsForUser(req.UserId)
 	if err != nil {
 		slog.Error("ListGroups: db error", "err", err)
 		return nil, status.Error(codes.Internal, "internal error")
@@ -312,6 +314,36 @@ func (s *Server) ListGroups(ctx context.Context, req *pb.User) (*pb.GroupsRespon
 		})
 	}
 	return &pb.GroupsResponse{Groups: pbGroups}, nil
+}
+
+// CreateSession creates a new contact and OPEN session for an outbound conversation.
+func (s *Server) CreateSession(ctx context.Context, req *pb.CreateSessionRequest) (*pb.ChatSession, error) {
+	if req.PhoneNumber == "" || req.GroupId == "" {
+		return nil, status.Error(codes.InvalidArgument, "phone_number and group_id are required")
+	}
+	ok, err := s.db.UserHasAccess(req.RequestingUserId, req.GroupId)
+	if err != nil {
+		slog.Error("CreateSession: UserHasAccess error", "err", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	if !ok {
+		return nil, status.Error(codes.PermissionDenied, "no access to the selected group")
+	}
+	sess, err := s.db.StartOutboundSession(req.PhoneNumber, req.GroupId, req.ContactName)
+	if err != nil {
+		if errors.Is(err, db.ErrContactExists) {
+			return nil, status.Error(codes.AlreadyExists, "a contact with that number already exists")
+		}
+		slog.Error("CreateSession: db error", "err", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	return &pb.ChatSession{
+		SessionId:    sess.SessionID,
+		ContactPhone: sess.ContactPhone,
+		GroupId:      req.GroupId,
+		Status:       sess.Status,
+		ContactName:  req.ContactName,
+	}, nil
 }
 
 // RetireContact retires the old contact record and returns a fresh session for
