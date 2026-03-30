@@ -1481,6 +1481,66 @@ func (x *DeleteUserRequest) GetRequestingUserId() string {
 	return ""
 }
 
+type ChangePasswordRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CurrentPassword string                 `protobuf:"bytes,2,opt,name=current_password,json=currentPassword,proto3" json:"current_password,omitempty"`
+	NewPassword     string                 `protobuf:"bytes,3,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ChangePasswordRequest) Reset() {
+	*x = ChangePasswordRequest{}
+	mi := &file_stargate_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordRequest) ProtoMessage() {}
+
+func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stargate_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
+func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
+	return file_stargate_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *ChangePasswordRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetCurrentPassword() string {
+	if x != nil {
+		return x.CurrentPassword
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
 type SetPermissionsRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -1493,7 +1553,7 @@ type SetPermissionsRequest struct {
 
 func (x *SetPermissionsRequest) Reset() {
 	*x = SetPermissionsRequest{}
-	mi := &file_stargate_proto_msgTypes[25]
+	mi := &file_stargate_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1505,7 +1565,7 @@ func (x *SetPermissionsRequest) String() string {
 func (*SetPermissionsRequest) ProtoMessage() {}
 
 func (x *SetPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stargate_proto_msgTypes[25]
+	mi := &file_stargate_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1518,7 +1578,7 @@ func (x *SetPermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPermissionsRequest.ProtoReflect.Descriptor instead.
 func (*SetPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_stargate_proto_rawDescGZIP(), []int{25}
+	return file_stargate_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *SetPermissionsRequest) GetUserId() string {
@@ -1655,12 +1715,16 @@ const file_stargate_proto_rawDesc = "" +
 	"\x12requesting_user_id\x18\x04 \x01(\tR\x10requestingUserId\"Z\n" +
 	"\x11DeleteUserRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12,\n" +
-	"\x12requesting_user_id\x18\x02 \x01(\tR\x10requestingUserId\"\xa7\x01\n" +
+	"\x12requesting_user_id\x18\x02 \x01(\tR\x10requestingUserId\"~\n" +
+	"\x15ChangePasswordRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12)\n" +
+	"\x10current_password\x18\x02 \x01(\tR\x0fcurrentPassword\x12!\n" +
+	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"\xa7\x01\n" +
 	"\x15SetPermissionsRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12*\n" +
 	"\x11has_global_access\x18\x02 \x01(\bR\x0fhasGlobalAccess\x12\x1b\n" +
 	"\tgroup_ids\x18\x03 \x03(\tR\bgroupIds\x12,\n" +
-	"\x12requesting_user_id\x18\x04 \x01(\tR\x10requestingUserId2\xee\v\n" +
+	"\x12requesting_user_id\x18\x04 \x01(\tR\x10requestingUserId2\xcd\f\n" +
 	"\fStarGateCore\x12J\n" +
 	"\x05Login\x12\x1f.philstar.stargate.LoginRequest\x1a .philstar.stargate.LoginResponse\x12N\n" +
 	"\x10SubscribeToInbox\x12\x17.philstar.stargate.User\x1a\x1f.philstar.stargate.MessageEvent0\x01\x12K\n" +
@@ -1674,7 +1738,8 @@ const file_stargate_proto_rawDesc = "" +
 	"\rAssignContact\x12 .philstar.stargate.AssignRequest\x1a!.philstar.stargate.ActionResponse\x12H\n" +
 	"\n" +
 	"ListGroups\x12\x17.philstar.stargate.User\x1a!.philstar.stargate.GroupsResponse\x12X\n" +
-	"\rCreateSession\x12'.philstar.stargate.CreateSessionRequest\x1a\x1e.philstar.stargate.ChatSession\x12F\n" +
+	"\rCreateSession\x12'.philstar.stargate.CreateSessionRequest\x1a\x1e.philstar.stargate.ChatSession\x12]\n" +
+	"\x0eChangePassword\x12(.philstar.stargate.ChangePasswordRequest\x1a!.philstar.stargate.ActionResponse\x12F\n" +
 	"\tListUsers\x12\x17.philstar.stargate.User\x1a .philstar.stargate.UsersResponse\x12U\n" +
 	"\n" +
 	"CreateUser\x12$.philstar.stargate.CreateUserRequest\x1a!.philstar.stargate.ActionResponse\x12U\n" +
@@ -1698,7 +1763,7 @@ func file_stargate_proto_rawDescGZIP() []byte {
 	return file_stargate_proto_rawDescData
 }
 
-var file_stargate_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_stargate_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_stargate_proto_goTypes = []any{
 	(*LoginRequest)(nil),          // 0: philstar.stargate.LoginRequest
 	(*LoginResponse)(nil),         // 1: philstar.stargate.LoginResponse
@@ -1725,7 +1790,8 @@ var file_stargate_proto_goTypes = []any{
 	(*DeleteGroupRequest)(nil),    // 22: philstar.stargate.DeleteGroupRequest
 	(*CreateUserRequest)(nil),     // 23: philstar.stargate.CreateUserRequest
 	(*DeleteUserRequest)(nil),     // 24: philstar.stargate.DeleteUserRequest
-	(*SetPermissionsRequest)(nil), // 25: philstar.stargate.SetPermissionsRequest
+	(*ChangePasswordRequest)(nil), // 25: philstar.stargate.ChangePasswordRequest
+	(*SetPermissionsRequest)(nil), // 26: philstar.stargate.SetPermissionsRequest
 }
 var file_stargate_proto_depIdxs = []int32{
 	5,  // 0: philstar.stargate.SessionsResponse.sessions:type_name -> philstar.stargate.ChatSession
@@ -1743,33 +1809,35 @@ var file_stargate_proto_depIdxs = []int32{
 	16, // 12: philstar.stargate.StarGateCore.AssignContact:input_type -> philstar.stargate.AssignRequest
 	2,  // 13: philstar.stargate.StarGateCore.ListGroups:input_type -> philstar.stargate.User
 	17, // 14: philstar.stargate.StarGateCore.CreateSession:input_type -> philstar.stargate.CreateSessionRequest
-	2,  // 15: philstar.stargate.StarGateCore.ListUsers:input_type -> philstar.stargate.User
-	23, // 16: philstar.stargate.StarGateCore.CreateUser:input_type -> philstar.stargate.CreateUserRequest
-	24, // 17: philstar.stargate.StarGateCore.DeleteUser:input_type -> philstar.stargate.DeleteUserRequest
-	20, // 18: philstar.stargate.StarGateCore.CreateGroup:input_type -> philstar.stargate.CreateGroupRequest
-	21, // 19: philstar.stargate.StarGateCore.RenameGroup:input_type -> philstar.stargate.RenameGroupRequest
-	22, // 20: philstar.stargate.StarGateCore.DeleteGroup:input_type -> philstar.stargate.DeleteGroupRequest
-	25, // 21: philstar.stargate.StarGateCore.SetUserPermissions:input_type -> philstar.stargate.SetPermissionsRequest
-	1,  // 22: philstar.stargate.StarGateCore.Login:output_type -> philstar.stargate.LoginResponse
-	7,  // 23: philstar.stargate.StarGateCore.SubscribeToInbox:output_type -> philstar.stargate.MessageEvent
-	8,  // 24: philstar.stargate.StarGateCore.GetSessions:output_type -> philstar.stargate.SessionsResponse
-	5,  // 25: philstar.stargate.StarGateCore.GetSession:output_type -> philstar.stargate.ChatSession
-	10, // 26: philstar.stargate.StarGateCore.GetMessages:output_type -> philstar.stargate.MessagesResponse
-	11, // 27: philstar.stargate.StarGateCore.SendReply:output_type -> philstar.stargate.ActionResponse
-	5,  // 28: philstar.stargate.StarGateCore.RetireContact:output_type -> philstar.stargate.ChatSession
-	11, // 29: philstar.stargate.StarGateCore.RenameContact:output_type -> philstar.stargate.ActionResponse
-	11, // 30: philstar.stargate.StarGateCore.AssignContact:output_type -> philstar.stargate.ActionResponse
-	9,  // 31: philstar.stargate.StarGateCore.ListGroups:output_type -> philstar.stargate.GroupsResponse
-	5,  // 32: philstar.stargate.StarGateCore.CreateSession:output_type -> philstar.stargate.ChatSession
-	19, // 33: philstar.stargate.StarGateCore.ListUsers:output_type -> philstar.stargate.UsersResponse
-	11, // 34: philstar.stargate.StarGateCore.CreateUser:output_type -> philstar.stargate.ActionResponse
-	11, // 35: philstar.stargate.StarGateCore.DeleteUser:output_type -> philstar.stargate.ActionResponse
-	4,  // 36: philstar.stargate.StarGateCore.CreateGroup:output_type -> philstar.stargate.Group
-	11, // 37: philstar.stargate.StarGateCore.RenameGroup:output_type -> philstar.stargate.ActionResponse
-	11, // 38: philstar.stargate.StarGateCore.DeleteGroup:output_type -> philstar.stargate.ActionResponse
-	11, // 39: philstar.stargate.StarGateCore.SetUserPermissions:output_type -> philstar.stargate.ActionResponse
-	22, // [22:40] is the sub-list for method output_type
-	4,  // [4:22] is the sub-list for method input_type
+	25, // 15: philstar.stargate.StarGateCore.ChangePassword:input_type -> philstar.stargate.ChangePasswordRequest
+	2,  // 16: philstar.stargate.StarGateCore.ListUsers:input_type -> philstar.stargate.User
+	23, // 17: philstar.stargate.StarGateCore.CreateUser:input_type -> philstar.stargate.CreateUserRequest
+	24, // 18: philstar.stargate.StarGateCore.DeleteUser:input_type -> philstar.stargate.DeleteUserRequest
+	20, // 19: philstar.stargate.StarGateCore.CreateGroup:input_type -> philstar.stargate.CreateGroupRequest
+	21, // 20: philstar.stargate.StarGateCore.RenameGroup:input_type -> philstar.stargate.RenameGroupRequest
+	22, // 21: philstar.stargate.StarGateCore.DeleteGroup:input_type -> philstar.stargate.DeleteGroupRequest
+	26, // 22: philstar.stargate.StarGateCore.SetUserPermissions:input_type -> philstar.stargate.SetPermissionsRequest
+	1,  // 23: philstar.stargate.StarGateCore.Login:output_type -> philstar.stargate.LoginResponse
+	7,  // 24: philstar.stargate.StarGateCore.SubscribeToInbox:output_type -> philstar.stargate.MessageEvent
+	8,  // 25: philstar.stargate.StarGateCore.GetSessions:output_type -> philstar.stargate.SessionsResponse
+	5,  // 26: philstar.stargate.StarGateCore.GetSession:output_type -> philstar.stargate.ChatSession
+	10, // 27: philstar.stargate.StarGateCore.GetMessages:output_type -> philstar.stargate.MessagesResponse
+	11, // 28: philstar.stargate.StarGateCore.SendReply:output_type -> philstar.stargate.ActionResponse
+	5,  // 29: philstar.stargate.StarGateCore.RetireContact:output_type -> philstar.stargate.ChatSession
+	11, // 30: philstar.stargate.StarGateCore.RenameContact:output_type -> philstar.stargate.ActionResponse
+	11, // 31: philstar.stargate.StarGateCore.AssignContact:output_type -> philstar.stargate.ActionResponse
+	9,  // 32: philstar.stargate.StarGateCore.ListGroups:output_type -> philstar.stargate.GroupsResponse
+	5,  // 33: philstar.stargate.StarGateCore.CreateSession:output_type -> philstar.stargate.ChatSession
+	11, // 34: philstar.stargate.StarGateCore.ChangePassword:output_type -> philstar.stargate.ActionResponse
+	19, // 35: philstar.stargate.StarGateCore.ListUsers:output_type -> philstar.stargate.UsersResponse
+	11, // 36: philstar.stargate.StarGateCore.CreateUser:output_type -> philstar.stargate.ActionResponse
+	11, // 37: philstar.stargate.StarGateCore.DeleteUser:output_type -> philstar.stargate.ActionResponse
+	4,  // 38: philstar.stargate.StarGateCore.CreateGroup:output_type -> philstar.stargate.Group
+	11, // 39: philstar.stargate.StarGateCore.RenameGroup:output_type -> philstar.stargate.ActionResponse
+	11, // 40: philstar.stargate.StarGateCore.DeleteGroup:output_type -> philstar.stargate.ActionResponse
+	11, // 41: philstar.stargate.StarGateCore.SetUserPermissions:output_type -> philstar.stargate.ActionResponse
+	23, // [23:42] is the sub-list for method output_type
+	4,  // [4:23] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -1786,7 +1854,7 @@ func file_stargate_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stargate_proto_rawDesc), len(file_stargate_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   26,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

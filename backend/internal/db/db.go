@@ -136,6 +136,15 @@ func (d *DB) GetUserByUsername(username string) (*models.User, error) {
 	return scanUser(row)
 }
 
+// UpdatePasswordHash replaces the stored bcrypt hash for a user.
+func (d *DB) UpdatePasswordHash(userID, newHash string) error {
+	_, err := d.sql.Exec(`UPDATE users SET password_hash = ? WHERE user_id = ?`, newHash, userID)
+	if err != nil {
+		return fmt.Errorf("db: UpdatePasswordHash: %w", err)
+	}
+	return nil
+}
+
 // GetUserByID fetches a user by their user_id.
 func (d *DB) GetUserByID(userID string) (*models.User, error) {
 	row := d.sql.QueryRow(

@@ -44,6 +44,9 @@ service StarGateCore {
   // Create a new outbound session to a phone number that doesn't yet exist in the system
   rpc CreateSession(CreateSessionRequest) returns (ChatSession);
 
+  // Available to all authenticated users
+  rpc ChangePassword(ChangePasswordRequest) returns (ActionResponse);
+
   // Admin — HR (global-access) only
   rpc ListUsers(User) returns (UsersResponse);
   rpc CreateUser(CreateUserRequest) returns (ActionResponse);
@@ -217,6 +220,12 @@ message CreateUserRequest {
 message DeleteUserRequest {
   string user_id            = 1;
   string requesting_user_id = 2;
+}
+
+message ChangePasswordRequest {
+  string user_id          = 1;
+  string current_password = 2;
+  string new_password     = 3;
 }
 
 message SetPermissionsRequest {

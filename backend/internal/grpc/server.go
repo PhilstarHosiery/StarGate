@@ -61,6 +61,35 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 	}, nil
 }
 
+// ChangePassword verifies the current password and replaces it with a new bcrypt hash.
+func (s *Server) ChangePassword(ctx context.Context, req *pb.ChangePasswordRequest) (*pb.ActionResponse, error) {
+	if req.CurrentPassword == "" || req.NewPassword == "" {
+		return &pb.ActionResponse{Success: false, ErrorMessage: "current and new password are required"}, nil
+	}
+	user, err := s.db.GetUserByID(req.UserId)
+	if err != nil {
+		slog.Error("ChangePassword: db error", "err", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	if user == nil {
+		return nil, status.Error(codes.NotFound, "user not found")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.CurrentPassword)); err != nil {
+		return &pb.ActionResponse{Success: false, ErrorMessage: "current password is incorrect"}, nil
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		slog.Error("ChangePassword: bcrypt error", "err", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	if err := s.db.UpdatePasswordHash(req.UserId, string(hash)); err != nil {
+		slog.Error("ChangePassword: update error", "err", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	slog.Info("ChangePassword: success", "user_id", req.UserId)
+	return &pb.ActionResponse{Success: true}, nil
+}
+
 // requireGlobalAccess returns a permission-denied error if the user is not a global-access user.
 func (s *Server) requireGlobalAccess(userID string) error {
 	user, err := s.db.GetUserByID(userID)

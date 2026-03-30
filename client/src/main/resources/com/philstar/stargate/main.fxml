@@ -16,6 +16,7 @@
             <Label text="StarGate" styleClass="toolbar-title"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Label fx:id="usernameLabel" styleClass="toolbar-user"/>
+            <Button text="Change Password" onAction="#onChangePassword" styleClass="btn-toolbar"/>
             <Button fx:id="adminButton" text="Admin" onAction="#onAdmin"
                     styleClass="btn-toolbar" visible="false" managed="false"/>
             <Button text="Logout" onAction="#onLogout" styleClass="btn-toolbar"/>

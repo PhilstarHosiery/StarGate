@@ -85,6 +85,14 @@ public class GrpcClient {
                 .getGroupsList();
     }
 
+    public ActionResponse changePassword(String userId, String currentPassword, String newPassword) {
+        return blocking.changePassword(ChangePasswordRequest.newBuilder()
+                .setUserId(userId)
+                .setCurrentPassword(currentPassword)
+                .setNewPassword(newPassword)
+                .build());
+    }
+
     public ChatSession createSession(String phone, String groupId, String contactName, String requestingUserId) {
         return blocking.createSession(CreateSessionRequest.newBuilder()
                 .setPhoneNumber(phone)

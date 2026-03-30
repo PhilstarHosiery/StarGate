@@ -524,6 +524,65 @@ public class MainController {
     }
 
     @FXML
+    private void onChangePassword() {
+        Dialog<ButtonType> dlg = new Dialog<>();
+        dlg.setTitle("Change Password");
+        dlg.setHeaderText(null);
+        dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(16));
+
+        PasswordField currentField = new PasswordField();
+        PasswordField newField     = new PasswordField();
+        PasswordField confirmField = new PasswordField();
+
+        grid.add(new Label("Current password:"), 0, 0); grid.add(currentField, 1, 0);
+        grid.add(new Label("New password:"),     0, 1); grid.add(newField,     1, 1);
+        grid.add(new Label("Confirm password:"), 0, 2); grid.add(confirmField, 1, 2);
+        GridPane.setHgrow(currentField, javafx.scene.layout.Priority.ALWAYS);
+        GridPane.setHgrow(newField,     javafx.scene.layout.Priority.ALWAYS);
+        GridPane.setHgrow(confirmField, javafx.scene.layout.Priority.ALWAYS);
+
+        dlg.getDialogPane().setContent(grid);
+        javafx.scene.Node okBtn = dlg.getDialogPane().lookupButton(ButtonType.OK);
+        okBtn.setDisable(true);
+
+        Runnable validate = () -> okBtn.setDisable(
+                currentField.getText().isEmpty() ||
+                newField.getText().isEmpty() ||
+                !newField.getText().equals(confirmField.getText()));
+        currentField.textProperty().addListener((o, a, b) -> validate.run());
+        newField.textProperty().addListener((o, a, b) -> validate.run());
+        confirmField.textProperty().addListener((o, a, b) -> validate.run());
+
+        Platform.runLater(currentField::requestFocus);
+        if (dlg.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+        String current = currentField.getText();
+        String newPass  = newField.getText();
+        AppState state  = AppState.get();
+
+        Task<ActionResponse> task = new Task<>() {
+            @Override protected ActionResponse call() {
+                return state.getGrpc().changePassword(state.getUserId(), current, newPass);
+            }
+        };
+        task.setOnSucceeded(e -> {
+            ActionResponse resp = task.getValue();
+            if (resp.getSuccess()) {
+                new Alert(Alert.AlertType.INFORMATION, "Password changed successfully.", ButtonType.OK).show();
+            } else {
+                showError(resp.getErrorMessage());
+            }
+        });
+        task.setOnFailed(e -> showError("Failed to change password."));
+        bg(task);
+    }
+
+    @FXML
     private void onLogout() {
         AppState.get().reset();
         try {
