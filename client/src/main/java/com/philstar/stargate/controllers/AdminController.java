@@ -14,6 +14,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxListCell;
+import javafx.util.StringConverter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ public class AdminController {
     @FXML private CheckBox                      newUserGlobalCheck;
 
     // Permissions tab
+    @FXML private Tab                           permissionsTab;
     @FXML private ListView<UserInfo>            permUsersList;
     @FXML private CheckBox                      permGlobalCheck;
     @FXML private ListView<Group>               permGroupsList;
@@ -70,8 +72,21 @@ public class AdminController {
 
         // Permissions — groups list with checkboxes
         permGroupsList.setItems(groups);
-        permGroupsList.setCellFactory(CheckBoxListCell.forListView(group ->
-                groupChecked.computeIfAbsent(group.getId(), id -> new SimpleBooleanProperty(false))));
+        permGroupsList.setCellFactory(CheckBoxListCell.forListView(
+                group -> groupChecked.computeIfAbsent(group.getId(), id -> new SimpleBooleanProperty(false)),
+                new StringConverter<>() {
+                    @Override public String toString(Group g)   { return g == null ? "" : g.getName(); }
+                    @Override public Group  fromString(String s){ return null; }
+                }));
+
+        // JavaFX ListView virtual flow doesn't initialize properly in a hidden Tab.
+        // Refresh both lists whenever the Permissions tab is selected so cells render.
+        permissionsTab.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            if (isSelected) {
+                permUsersList.refresh();
+                permGroupsList.refresh();
+            }
+        });
 
         loadData();
     }
