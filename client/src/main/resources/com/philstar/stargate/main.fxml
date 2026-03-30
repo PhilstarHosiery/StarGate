@@ -31,6 +31,9 @@
                 <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
                 <Label text="Conversations" styleClass="sidebar-heading"/>
             </HBox>
+            <TextField fx:id="searchField" promptText="Search…" styleClass="search-field">
+                <VBox.margin><Insets top="8" right="8" bottom="4" left="8"/></VBox.margin>
+            </TextField>
             <ListView fx:id="sessionList" VBox.vgrow="ALWAYS" styleClass="session-list"/>
         </VBox>
     </left>

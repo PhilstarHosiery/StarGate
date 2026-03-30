@@ -10,6 +10,7 @@ import com.philstar.stargate.proto.MessageEvent;
 import com.philstar.stargate.ui.SessionCell;
 import io.grpc.stub.StreamObserver;
 import javafx.application.Platform;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -32,6 +33,7 @@ public class MainController {
     @FXML private Button adminButton;
 
     // Session list
+    @FXML private TextField             searchField;
     @FXML private ListView<ChatSession> sessionList;
 
     // Chat header
@@ -60,7 +62,23 @@ public class MainController {
         }
 
         sessionList.setCellFactory(lv -> new SessionCell());
-        sessionList.setItems(state.getSessions());
+
+        FilteredList<ChatSession> filteredSessions = new FilteredList<>(state.getSessions());
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+            filteredSessions.setPredicate(session -> {
+                if (newVal == null || newVal.isBlank()) return true;
+                String[] terms = newVal.trim().toLowerCase().split("\\s+");
+                String name  = state.getContactDisplayName(session.getContactPhone()).toLowerCase();
+                String phone = session.getContactPhone().toLowerCase();
+                String group = state.getGroupName(session.getGroupId()).toLowerCase();
+                for (String term : terms) {
+                    if (!name.contains(term) && !phone.contains(term) && !group.contains(term))
+                        return false;
+                }
+                return true;
+            });
+        });
+        sessionList.setItems(filteredSessions);
         sessionList.getSelectionModel().selectedItemProperty().addListener(
                 (obs, old, selected) -> { if (selected != null) onSessionSelected(selected); });
 

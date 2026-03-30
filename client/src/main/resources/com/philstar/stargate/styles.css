@@ -111,6 +111,22 @@
     -fx-text-transform: uppercase;
 }
 
+.search-field {
+    -fx-background-color: #0f1b35;
+    -fx-text-fill: #e8e8e8;
+    -fx-prompt-text-fill: #556;
+    -fx-border-color: #1e3560;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 6 10;
+    -fx-font-size: 12px;
+    -fx-max-width: Infinity;
+}
+
+.search-field:focused {
+    -fx-border-color: #4a90d9;
+}
+
 .session-list {
     -fx-background-color: #1a1a2e;
     -fx-border-color: transparent;
