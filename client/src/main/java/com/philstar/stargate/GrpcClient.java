@@ -9,7 +9,7 @@ import java.util.List;
 
 public class GrpcClient {
 
-    private static final String HOST = "localhost";
+    private static final String HOST = "192.168.0.30";
     private static final int PORT = 50051;
 
     private final ManagedChannel channel;

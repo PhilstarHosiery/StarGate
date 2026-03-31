@@ -12,7 +12,7 @@ plugins {
 }
 
 group = 'com.philstar'
-version = '0.99'
+version = '0.99.1'
 
 java {
     toolchain {
@@ -198,10 +198,10 @@ test {
 // jlink & jpackage (Pure Modular Configuration)
 // ---------------------------------------------------------------------------
 jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    options = ['--strip-debug', '--no-header-files', '--no-man-pages']
 
     launcher {
-        name    = 'stargate'
+        name    = 'StarGate'
         jvmArgs = ['-Dfile.encoding=UTF-8']
     }
 
@@ -210,34 +210,34 @@ jlink {
 
     jpackage {
         imageName      = 'StarGate'
-        installerName  = 'StarGate-Setup'
         appVersion     = project.version.toString().replace('-SNAPSHOT', '')
         vendor         = 'Philstar Hosiery, Inc.'
         installerType  = 'msi'
         icon           = 'src/main/resources/com/philstar/stargate/app.ico'
 
         installerOptions = [
-                '--win-per-user-install',
+                '--install-dir', 'PhilstarApp\\StarGate',
                 '--win-dir-chooser',
                 '--win-menu',
-                '--win-shortcut',
+                '--win-menu-group', 'Philstar App',
+                '--win-upgrade-uuid', '3462ac90-72ef-42ce-bc67-74d181d5bb15'
         ]
     }
 }
 
 
-tasks.register("listNonModularJars") {
-    doLast {
-        println "--- Scanning for legacy JARs triggering Beryx ---"
-        configurations.runtimeClasspath.files.findAll { it.name.endsWith('.jar') }.each { file ->
-            try (java.util.jar.JarFile jar = new java.util.jar.JarFile(file)) {
-                boolean hasModuleInfo = jar.getEntry("module-info.class") != null ||
-                        jar.stream().anyMatch { it.name.matches("META-INF/versions/\\d+/module-info\\.class") }
-                if (!hasModuleInfo) {
-                    println "❌ Found legacy JAR: ${file.name}"
-                }
-            } catch (Exception e) {}
-        }
-        println "---------------------------------------------------"
-    }
-}
+//tasks.register("listNonModularJars") {
+//    doLast {
+//        println "--- Scanning for legacy JARs triggering Beryx ---"
+//        configurations.runtimeClasspath.files.findAll { it.name.endsWith('.jar') }.each { file ->
+//            try (java.util.jar.JarFile jar = new java.util.jar.JarFile(file)) {
+//                boolean hasModuleInfo = jar.getEntry("module-info.class") != null ||
+//                        jar.stream().anyMatch { it.name.matches("META-INF/versions/\\d+/module-info\\.class") }
+//                if (!hasModuleInfo) {
+//                    println "❌ Found legacy JAR: ${file.name}"
+//                }
+//            } catch (Exception e) {}
+//        }
+//        println "---------------------------------------------------"
+//    }
+//}
