@@ -171,6 +171,22 @@ run {
     }
 }
 
+compileJava {
+    // options.compilerArgs += ["-Xlint:unchecked"]
+
+    doFirst {
+        def dir = new File(projectDir, "src/main/java/gradle")
+        dir.mkdirs()
+        new File(dir, "GradleProject.java").text = """package gradle;
+
+public class GradleProject {
+    public static final String ApplicationName = "$rootProject.name";
+    public static final String ApplicationVersion = "$version";
+}
+"""
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Test
 // ---------------------------------------------------------------------------

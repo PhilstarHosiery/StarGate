@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import gradle.GradleProject;
+
 public class StarGateApp extends Application {
 
     private static Stage primaryStage;
@@ -18,7 +20,7 @@ public class StarGateApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
-        stage.setTitle("StarGate");
+        stage.setTitle(GradleProject.ApplicationName + " " + GradleProject.ApplicationVersion);
         stage.setResizable(true);
         stage.getIcons().add(new Image(StarGateApp.class.getResourceAsStream("app.png")));
         showLogin();
