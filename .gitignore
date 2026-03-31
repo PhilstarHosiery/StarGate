@@ -10,3 +10,6 @@ desktop.ini
 *.ipr
 *.iws
 backend/config/config.yaml
+
+# Proto toolchain binaries
+bin/
