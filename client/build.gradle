@@ -6,7 +6,9 @@ plugins {
     id 'org.beryx.jlink' version '3.2.1'
 
     id 'com.google.protobuf' version '0.9.6'
-    id 'de.jjohannes.extra-java-module-info' version '0.16'
+
+    // Updated to the modern namespace and version for Strategy 2
+    id 'org.gradlex.extra-java-module-info' version '1.14'
 }
 
 group = 'com.philstar'
@@ -43,24 +45,24 @@ javafx {
 // Dependencies
 // ---------------------------------------------------------------------------
 dependencies {
-    // gRPC
     runtimeOnly "io.grpc:grpc-netty-shaded:${grpcVersion}"
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
     implementation "io.grpc:grpc-stub:${grpcVersion}"
 
-    // Protobuf runtime
+    // Explicitly add grpc-api so the compiler and patcher don't lose it
+    implementation "io.grpc:grpc-api:${grpcVersion}"
+
     implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
-
-    // Required by gRPC stubs on Java 9+
     implementation 'org.apache.tomcat:annotations-api:6.0.53'
+    implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    // Logging
-    implementation 'org.slf4j:slf4j-api:2.0.13'
-    implementation 'ch.qos.logback:logback-classic:1.5.6'
-
-    // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Prevent split-package JPMS crashes by banishing the ancient jsr305 library
+configurations.all {
+    exclude group: 'com.google.code.findbugs', module: 'jsr305'
 }
 
 // ---------------------------------------------------------------------------
@@ -91,45 +93,82 @@ sourceSets {
         java {
             // Include generated gRPC/protobuf sources
             srcDirs += [
-                'build/generated/sources/proto/main/grpc',
-                'build/generated/sources/proto/main/java'
+                    'build/generated/sources/proto/main/grpc',
+                    'build/generated/sources/proto/main/java'
             ]
         }
     }
 }
 
-
+// ---------------------------------------------------------------------------
+// Modular Patching (Strategy 2)
+// ---------------------------------------------------------------------------
 extraJavaModuleInfo {
-    automaticModule("io.grpc:grpc-netty-shaded", "grpc.grpc_netty_shaded")
-    automaticModule("io.grpc:grpc-core", "grpc.core")
-    automaticModule("com.google.android:annotations", "annotations")
-    automaticModule("org.codehaus.mojo:animal-sniffer-annotations", "animal_sniffer_annotations")
+    failOnMissingModuleInfo = false
 
+    // 1. Create one giant host module and name it whatever you want
+    module("io.grpc:grpc-api", "io.grpc") {
 
-    automaticModule("com.google.protobuf:protobuf-java", "protobuf.java")
-
-    automaticModule("io.grpc:grpc-protobuf", "grpc.protobuf")
-    automaticModule("io.grpc:grpc-stub", "grpc.stub")
-    automaticModule("io.grpc:grpc-protobuf-lite", "grpc.protobuf.lite")
-    automaticModule("io.grpc:grpc-api", "grpc.api") {
+        // 2. Swallow every other gRPC and Protobuf JAR into this one
         mergeJar("io.grpc:grpc-context")
-        mergeJar("com.google.code.findbugs:jsr305")
-        mergeJar("org.apache.tomcat:annotations-api")
+        mergeJar("io.grpc:grpc-core")
+        mergeJar("io.grpc:grpc-netty-shaded")
+        mergeJar("io.grpc:grpc-protobuf")
+        mergeJar("io.grpc:grpc-stub")
+        mergeJar("io.grpc:grpc-util")
+        mergeJar("io.grpc:grpc-protobuf-lite")
+        mergeJar("com.google.protobuf:protobuf-java")
+        mergeJar("com.google.api.grpc:proto-google-common-protos")
+
+        // 3. Swallow the annoying transitive dependencies too
+        mergeJar("com.google.guava:guava")
+        mergeJar("com.google.guava:failureaccess")
+        mergeJar("com.google.guava:listenablefuture")
+        mergeJar("io.perfmark:perfmark-api")
+        // ... add any others that pop up
+
+        // 4. Export everything and DO NOT use requireAllDefinedDependencies()
+        exportAllPackages()
+
+        // FIX: Tell the module system to ignore the missing BlockHound optional dependency
+        ignoreServiceProvider("reactor.blockhound.integration.BlockHoundIntegration")
+
+        // FIX: Explicitly grant the mega-module access to the built-in JDK modules it needs
+        requires("java.logging")
+        requires("java.naming")       // Required by gRPC for DNS name resolution
+        requires("jdk.unsupported")   // Required by Netty for sun.misc.Unsafe memory access
+
+        // FIX: Explicitly grant gRPC permission to dynamically load its own network providers
+        uses("io.grpc.ManagedChannelProvider")
+        uses("io.grpc.NameResolverProvider")
+        uses("io.grpc.LoadBalancerProvider")
+        uses("io.grpc.ServerProvider") // Optional for clients, but good to have just in case
     }
-    automaticModule("com.google.api.grpc:proto-google-common-protos", "proto.google.common.protos")
-    automaticModule("com.google.guava:failureaccess", "guava.failureaccess")
-    automaticModule("com.google.guava:listenablefuture", "guava.listenablefuture")
-    automaticModule("com.google.j2objc:j2objc-annotations", "j2objc.annotations")
-    //automaticModule("animal-sniffer-annotations-1.24.jar", "org.codehaus.mojo.animal.sniffer.annotations")
+
+    // You still leave Tomcat Annotations separate because it's unrelated
+    // Add these minor stragglers so Beryx doesn't try to merge them!
+    module("org.apache.tomcat:annotations-api", "tomcat.annotations.api") { exportAllPackages() }
+
+    module("com.google.android:annotations", "com.google.android.annotations") { exportAllPackages() }
+    module("org.codehaus.mojo:animal-sniffer-annotations", "animal_sniffer.annotations") { exportAllPackages() }
 }
 
 // ---------------------------------------------------------------------------
 // Application entry point
 // ---------------------------------------------------------------------------
 application {
-    // mainModule is required for jlink — must match module-info.java module name
     mainModule = 'com.philstar.stargate'
     mainClass  = 'com.philstar.stargate.Main'
+}
+
+// Ensure JavaFX is properly added to the module path when running via Gradle
+run {
+    doFirst {
+        jvmArgs = [
+                '--module-path', classpath.asPath,
+                '--add-modules', 'javafx.controls,javafx.fxml'
+        ]
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -140,8 +179,7 @@ test {
 }
 
 // ---------------------------------------------------------------------------
-// jlink — custom runtime image
-// jpackage — native installer (exe/msi)
+// jlink & jpackage (Pure Modular Configuration)
 // ---------------------------------------------------------------------------
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
@@ -151,39 +189,38 @@ jlink {
         jvmArgs = ['-Dfile.encoding=UTF-8']
     }
 
-    // gRPC, Netty, Protobuf, and Logback are not fully modular.
-    // The plugin bundles all non-modular jars into one synthetic merged module
-    // named 'com.philstar.stargate.merged.module' (referenced in module-info.java).
-//    mergedModule {
-//        additive = true
-//        // Extra java.* modules that merged non-modular code needs at runtime
-//        requires 'java.logging'
-//        requires 'java.naming'
-//        requires 'java.management'
-//        requires 'java.security.sasl'
-//        requires 'java.security.jgss'
-//        requires 'jdk.unsupported'   // Unsafe — needed by Netty
-//    }
+    // Notice how clean this is now! No mergedModule block, no jarExcludes.
+    // The Beryx plugin simply passes the patched modules directly to the JDK.
 
     jpackage {
         imageName      = 'StarGate'
         installerName  = 'StarGate-Setup'
-        // Strip -SNAPSHOT so jpackage accepts the version string
         appVersion     = project.version.toString().replace('-SNAPSHOT', '')
         vendor         = 'Philstar Hosiery, Inc.'
-
-        // 'exe' works out of the box.
-        // Switch to 'msi' if WiX Toolset 3.x is installed (adds Windows Installer support).
         installerType  = 'msi'
 
         installerOptions = [
-            '--win-per-user-install',
-            '--win-dir-chooser',
-            '--win-menu',
-            '--win-shortcut',
+                '--win-per-user-install',
+                '--win-dir-chooser',
+                '--win-menu',
+                '--win-shortcut',
         ]
+    }
+}
 
-        // Uncomment once an icon exists:
-        // imageOptions = ['--icon', 'src/main/resources/images/icon.ico']
+
+tasks.register("listNonModularJars") {
+    doLast {
+        println "--- Scanning for legacy JARs triggering Beryx ---"
+        configurations.runtimeClasspath.files.findAll { it.name.endsWith('.jar') }.each { file ->
+            try (java.util.jar.JarFile jar = new java.util.jar.JarFile(file)) {
+                boolean hasModuleInfo = jar.getEntry("module-info.class") != null ||
+                        jar.stream().anyMatch { it.name.matches("META-INF/versions/\\d+/module-info\\.class") }
+                if (!hasModuleInfo) {
+                    println "❌ Found legacy JAR: ${file.name}"
+                }
+            } catch (Exception e) {}
+        }
+        println "---------------------------------------------------"
     }
 }
