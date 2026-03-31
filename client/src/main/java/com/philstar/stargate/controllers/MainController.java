@@ -203,7 +203,9 @@ public class MainController {
     }
 
     private void scrollToBottom() {
-        Platform.runLater(() -> messagesScroll.setVvalue(1.0));
+        // Two deferred pulses: first lets JavaFX process the new nodes,
+        // second fires after layout so the ScrollPane knows its full height.
+        Platform.runLater(() -> Platform.runLater(() -> messagesScroll.setVvalue(1.0)));
     }
 
     // -------------------------------------------------------------------------
