@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# PROVIDE: stargate
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+#
+# Installation:
+#   cp stargate /usr/local/etc/rc.d/stargate
+#   chmod +x /usr/local/etc/rc.d/stargate
+#
+# Add to /etc/rc.conf:
+#   stargate_enable="YES"
+#   stargate_config="/usr/local/etc/stargate/config.yaml"   # optional
+#   stargate_log="/var/log/stargate/server.log"              # optional
+#   stargate_user="stargate"                                 # optional
+#
+# Manage:
+#   service stargate start|stop|restart|status
+#
+# Log rotation:
+#   Install deploy/freebsd/newsyslog.conf into /etc/newsyslog.conf.d/
+
+. /etc/rc.subr
+
+name="stargate"
+rcvar="stargate_enable"
+desc="StarGate SMS Gateway"
+
+load_rc_config "$name"
+
+: ${stargate_enable:="NO"}
+: ${stargate_config:="/usr/local/etc/stargate/config.yaml"}
+: ${stargate_log:="/var/log/stargate/server.log"}
+: ${stargate_user:="stargate"}
+
+procname="/usr/local/bin/stargate-server"
+command="/usr/sbin/daemon"
+command_args="-P /var/run/${name}.pid -u ${stargate_user} \
+    ${procname} \
+    -config ${stargate_config} \
+    -log    ${stargate_log} \
+    -pid-file /var/run/${name}-server.pid"
+pidfile="/var/run/${name}.pid"
+
+start_precmd="${name}_precmd"
+stargate_precmd() {
+    # Ensure the log directory exists and is owned by the service user.
+    local logdir
+    logdir=$(dirname "${stargate_log}")
+    install -d -m 755 -o "${stargate_user}" "${logdir}"
+}
+
+run_rc_command "$1"

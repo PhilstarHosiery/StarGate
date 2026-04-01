@@ -37,6 +37,8 @@ go test ./internal/db/...
 
 ```bash
 go run ./cmd/server -create-user
+# With explicit config path:
+go run ./cmd/server -config /usr/local/etc/stargate/config.yaml -create-user
 ```
 
 ## Architecture
@@ -72,6 +74,30 @@ The backend is a single Go binary that starts two servers concurrently:
 ### Deduplication
 
 `CreateMessage()` accepts an optional `gateway_message_id`. The column has a unique index; duplicate webhook deliveries are silently ignored with an `INSERT OR IGNORE`.
+
+### Deployment (FreeBSD)
+
+The binary accepts a `-config <path>` flag; without it, it falls back to `config/config.yaml` then `config.yaml` (useful for local dev).
+
+```bash
+# Build for FreeBSD (from any platform)
+GOOS=freebsd GOARCH=amd64 go build -o stargate-server ./cmd/server
+
+# Standard install paths
+/usr/local/bin/stargate-server
+/usr/local/etc/stargate/config.yaml
+/var/db/stargate/stargate.db        # set database.path in config.yaml
+
+# rc.d service (see deploy/freebsd/rc.d/stargate)
+cp deploy/freebsd/rc.d/stargate /usr/local/etc/rc.d/stargate
+chmod +x /usr/local/etc/rc.d/stargate
+# Add to /etc/rc.conf: stargate_enable="YES"
+service stargate start
+```
+
+The server handles SIGTERM/SIGINT gracefully (waits for in-flight gRPC calls to finish, then shuts down the HTTP server with a 10 s timeout).
+
+`GET /healthz` on the webhook port returns 200 OK — use it for uptime monitoring.
 
 ### Configuration
 
