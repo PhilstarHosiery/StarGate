@@ -7,9 +7,8 @@ Centralized, real-time SMS Gateway for Philstar. Remote employees text a central
 ```
 Stargate/
 ├── proto/          # Shared gRPC contract (stargate.proto)
-├── backend/        # Go server (webhook receiver + gRPC server)
-├── client/         # JavaFX desktop client (Gradle)
-└── buf.gen.yaml    # buf code generation config (proto → backend/gen)
+├── backend/        # Rust server (webhook receiver + gRPC server)
+└── client/         # JavaFX desktop client (Gradle)
 ```
 
 ## Prerequisites
@@ -17,7 +16,7 @@ Stargate/
 | Tool | Version |
 |---|---|
 | Java JDK | 25 |
-| Go | 1.25+ |
+| Rust | stable, via [rustup](https://rustup.rs) (Windows: plus Visual Studio Build Tools, C++ workload) |
 | Gradle | via wrapper (`./gradlew`) |
 
 ## Building
@@ -39,35 +38,26 @@ cd client
 
 Output: `client/build/image/` (runtime image), `client/build/jpackage/` (installer).
 
-### Backend (Go)
+### Backend (Rust)
 
 ```bat
 cd backend
 
-run.bat          :: go run ./cmd/server
-build.bat        :: produces stargate-server.exe
+run.bat          :: cargo run
+build.bat        :: cargo build --release, copies stargate-server.exe
+cargo test       :: run tests
 ```
 
 ### Generating gRPC Code
 
-Proto changes must be re-compiled for both languages.
+Proto changes are compiled for both languages automatically on build.
 
-**Java** — automatic on build:
+**Java**:
 ```bash
 cd client && ./gradlew generateProto
 ```
 
-**Go** — run once after any proto change:
-```bat
-cd backend
-gen.bat
-```
-Requires three tools installed via `go install` (one-time setup):
-```bat
-go install github.com/bufbuild/buf/cmd/buf@latest
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-```
+**Rust** — `backend/build.rs` regenerates the server code from `proto/stargate.proto` on every `cargo build` (pure-Rust `protox`, no `protoc` needed).
 
 ## Configuration
 
@@ -82,7 +72,7 @@ cp backend/config/config.example.yaml backend/config/config.yaml
 Create the initial admin user (interactive prompt):
 ```bash
 cd backend
-go run ./cmd/server -create-user
+cargo run -- --create-user
 # or on Windows:
-run.bat -create-user
+run.bat --create-user
 ```

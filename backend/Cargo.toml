@@ -1,0 +1,39 @@
+[package]
+name = "stargate-server"
+version = "0.1.0"
+edition = "2024"
+description = "StarGate SMS Gateway backend: SMS Gate webhook receiver + gRPC server"
+publish = false
+
+[dependencies]
+anyhow = "1"
+axum = "0.8"
+bcrypt = "0.17"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+clap = { version = "4", features = ["derive"] }
+hex = "0.4"
+hmac = "0.12"
+prost = "0.14"
+rand = "0.9"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+rpassword = "7"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+sha2 = "0.10"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "sync", "time", "fs"] }
+tokio-stream = { version = "0.1", features = ["net"] }
+tonic = "0.14"
+tonic-prost = "0.14"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+[build-dependencies]
+protox = "0.9"
+tonic-prost-build = "0.14"
+
+[profile.release]
+strip = true
+lto = "thin"

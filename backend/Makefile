@@ -1,22 +1,23 @@
-# StarGate Backend
+# StarGate Backend (Rust)
 #
-# Requires (install once):
-#   go install github.com/bufbuild/buf/cmd/buf@latest
-#   go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-#   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+# Requires a Rust toolchain (https://rustup.rs). No protoc needed: build.rs
+# compiles ../proto/stargate.proto with the pure-Rust protox compiler.
 
-.PHONY: gen build run tidy
-
-gen:
-	mkdir -p gen
-	cd .. && buf generate
-	rm -f gen/stub.go
+.PHONY: build run test lint clean
 
 build:
-	go build -o stargate-server ./cmd/server
+	cargo build --release
+	@echo "Built: target/release/stargate-server"
 
 run:
-	go run ./cmd/server
+	cargo run
 
-tidy:
-	go mod tidy
+test:
+	cargo test
+
+lint:
+	cargo fmt --check
+	cargo clippy --all-targets -- -D warnings
+
+clean:
+	cargo clean

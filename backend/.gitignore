@@ -4,8 +4,8 @@
 *.so
 stargate-server
 
-# Go
-vendor/
+# Rust
+target/
 
 # Config with secrets
 config/local.yaml

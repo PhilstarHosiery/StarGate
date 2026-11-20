@@ -8,7 +8,7 @@ Centralized, real-time SMS Gateway for Philstar. Remote contacts text a central 
 |---|---|
 | Hardware (current) | Android phone running SMS Gate app (Private Mode) |
 | Hardware (future) | Teltonika RUT241 industrial 4G LTE router |
-| Backend | Go — FreeBSD, cross-compilable to Windows `.exe` |
+| Backend | Rust (tokio, tonic, axum, sqlx) — FreeBSD and Windows `.exe` |
 | Database | SQLite (or PostgreSQL) |
 | Frontend | Java 25 + JavaFX desktop client |
 | Transport | gRPC — server-side streaming for real-time updates |
@@ -37,20 +37,20 @@ Centralized, real-time SMS Gateway for Philstar. Remote contacts text a central 
 ## Core Workflows
 
 ### Inbound Routing
-1. SMS Gate / RUT241 POSTs a webhook to the Go backend.
-2. Go looks up the sender in `Contacts`.
+1. SMS Gate / RUT241 POSTs a webhook to the Rust backend.
+2. The backend looks up the sender in `Contacts`.
    - **Found** → route to that contact's group.
    - **Not found** → create an "Unknown" contact with `group_id = NULL`; push only to HR (`has_global_access = true`).
-3. Go pushes the message via gRPC stream to all connected clients with permission for that group.
-4. HR calls `RenameContact` and `AssignContact` → Go updates the DB and pushes a `MessageEvent` to all users with permission to the newly assigned group.
+3. The backend pushes the message via gRPC stream to all connected clients with permission for that group.
+4. HR calls `RenameContact` and `AssignContact` → the backend updates the DB and pushes a `MessageEvent` to all users with permission to the newly assigned group.
 
 ### Outbound (Sticky SIM)
 - Each Contact has an `assigned_sim` (1 = Globe, 2 = Smart) set at creation time from whichever SIM received the first inbound message.
-- Replies are sent via `SendReply` gRPC call → Go POSTs to the SMS Gate / RUT241 API with the Contact's `assigned_sim`, avoiding cross-network fees.
+- Replies are sent via `SendReply` gRPC call → the backend POSTs to the SMS Gate / RUT241 API with the Contact's `assigned_sim`, avoiding cross-network fees.
 
 ### Real-Time Communication
 - JavaFX connects on login via a persistent gRPC `StreamObserver`.
-- Go pushes `MessageEvent` payloads immediately on webhook receipt.
+- The backend pushes `MessageEvent` payloads immediately on webhook receipt.
 - JavaFX applies updates with `Platform.runLater()`.
 
 ## gRPC Contract
